@@ -126,12 +126,49 @@ body {
 .track::-webkit-scrollbar-track { background: var(--border); border-radius: 99px; }
 .track::-webkit-scrollbar-thumb { background: var(--intel-blue); border-radius: 99px; }
 
+/* ---- The spine ---------------------------------------------------------
+   What makes this read as a TIMELINE rather than a row of cards: one
+   continuous line with a node on each milestone.
+
+   Drawn with a pseudo-element on the track rather than a real element, so it
+   costs no markup and cannot be read out by a screen reader as content. The
+   line is decoration; the ordered list underneath is the real structure. */
+
+.track { position: relative; }
+
+.track::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  top: 24px;                 /* sits behind the top strip of every card */
+  height: 3px;
+  background: linear-gradient(90deg, var(--intel-light), var(--intel-blue));
+  opacity: .35;
+  z-index: 0;
+}
+
+/* The node that marks this card's place on the line. */
+.card__node {
+  position: absolute;
+  top: -7px; left: 24px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 3px solid var(--intel-blue);
+  z-index: 2;
+  transition: background .28s ease, transform .28s ease;
+}
+.card:hover .card__node,
+.card:focus-visible .card__node { background: var(--intel-light); transform: scale(1.25); }
+
 /* ---- The card ---- */
 
 .card {
   position: relative;
   flex: 0 0 300px;        /* fixed width, no growing or shrinking */
   scroll-snap-align: start;
+  margin-top: 24px;       /* clears the spine, which the node then touches */
+  z-index: 1;             /* above the line, below the node */
 
   background: var(--surface);
   border: 1px solid var(--border);
@@ -193,18 +230,33 @@ body {
 
 .card__reveal p { margin: 0; font-size: .95rem; }
 
-/* Hover for a mouse, focus-within for a keyboard. A hover-only reveal is
-   information a keyboard user simply never receives. */
+/* ⚠️ :focus-within alone did NOT work here, and it is worth knowing why: it
+   fires when a focusable DESCENDANT is focused, and these cards contain only
+   images and text. Nothing inside could ever take focus, so the rule never
+   matched and a keyboard user got no reveal at all.
+
+   Fixed at the markup end -- each card carries tabindex="0" -- so the card
+   itself is the thing that receives focus. :focus-visible rather than :focus,
+   so a mouse click does not leave a focus ring behind. */
 .card:hover,
+.card:focus-visible,
 .card:focus-within {
   transform: translateY(-8px) scale(1.02);
   box-shadow: var(--shadow-lift);
   border-color: var(--intel-blue);
 }
 .card:hover .card__reveal,
+.card:focus-visible .card__reveal,
 .card:focus-within .card__reveal {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* A real focus ring. Removing the outline without replacing it is the single
+   most common accessibility regression in CSS; this replaces it deliberately. */
+.card:focus-visible {
+  outline: 3px solid var(--intel-light);
+  outline-offset: 3px;
 }
 
 /* ---- The hint line ---- */
@@ -263,7 +315,15 @@ body {
   }
 
   .card:hover,
+  .card:focus-visible,
   .card:focus-within { transform: none; box-shadow: var(--shadow-rest); }
+
+  /* The spine is a HORIZONTAL line. Stacked vertically there is nothing for it
+     to run along, so it and its nodes come off rather than being rotated into
+     a decoration that means nothing. */
+  .track::before { display: none; }
+  .card__node { display: none; }
+  .card { margin-top: 0; }
 
   .hint-desktop { display: none; }
   .hint-mobile  { display: inline; }
