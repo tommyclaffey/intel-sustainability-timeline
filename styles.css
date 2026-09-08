@@ -185,9 +185,20 @@ body {
      duplication -- the attributes give the browser the aspect ratio before the
      file loads, so the hero does not jump when it arrives. */
   display: block;
-  height: clamp(34px, 4vw, 46px);
+  /* ⚠️ Sized AGAINST THE HEADLINE, not picked to look right on one screen.
+
+     At 34–46px it stood at 0.89 of the h1's cap height on desktop and 1.48 of
+     it at 375px -- the logo was the same size as the headline everywhere, and
+     larger than it on a phone. A mark and a message competing for the same
+     rank, with the mark winning on the screen where there is least room.
+
+     Now roughly 0.6 of cap height across the range: present, obviously Intel,
+     and clearly subordinate to the sentence it introduces. The 20px floor is
+     the practical limit -- below that the wordmark stops being legible, which
+     is a worse failure than being slightly large. */
+  height: clamp(20px, 2.8vw, 32px);
   width: auto;
-  margin: 0 0 var(--space-12);   /* left-aligned, and given room to breathe */
+  margin: 0 0 var(--space-8);   /* left-aligned, and given room to breathe */
 }
 
 .hero__title {
