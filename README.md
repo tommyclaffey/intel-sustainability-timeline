@@ -52,7 +52,16 @@ lines of JavaScript that work everywhere.
 The script owns **position only**. Every colour, size and transition stays in
 the stylesheet.
 
-Two details in it worth knowing:
+**The one worth writing about:** which card is "active" is derived from
+geometry, not remembered from a `mouseenter` event. `mouseenter` and CSS
+`:hover` both fire on *pointer* movement — neither reliably updates when an
+element slides under a cursor that is holding still. So scrolling past cards
+left the dot pointing at the wrong one and the reveal not firing at all.
+Recording the pointer position and asking *"which card is nearest it right
+now"* is correct at every moment, because it is recomputed rather than
+remembered.
+
+Two more details:
 
 - Progress is `scrollLeft / (scrollWidth - clientWidth)`. Dividing by
   `scrollWidth` is the classic version of this bug and makes the dot stop short
