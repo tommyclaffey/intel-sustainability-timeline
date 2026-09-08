@@ -9,6 +9,7 @@ milestones, using HTML, CSS and Flexbox.
 |---|---|
 | Horizontal on large screens | `.track` is `display:flex; flex-wrap:nowrap; overflow-x:auto` |
 | Stacks vertically on small screens | `@media (max-width: 768px)` flips it to `flex-direction: column` |
+| Two breakpoints, not one | The hero stacks at **1024px**, the timeline at **768px** — they fail at different widths |
 | Hover reveals detail | `.card__reveal` is `opacity:0` → `1` on `:hover` **and `:focus-within`** |
 | Intel-branded styling | Tokens at the top of `styles.css` — `#0068B5`, `#00285A`, `#00C7FD` |
 | Image on every card | 8 cards, 8 images, all with real `alt` text |

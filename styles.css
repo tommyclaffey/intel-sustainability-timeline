@@ -32,7 +32,13 @@
      The fluid ones use clamp(min, preferred, max): never smaller than the
      first, never larger than the third, scaling with the viewport between.
      That replaces three breakpoints with one line. */
-  --t-display: clamp(2.5rem, 6.5vw, 4.5rem);   /* h1  40 → 72 */
+  /* The floor is 2rem, not 2.5rem. At 320px -- an iPhone SE, still the
+     narrowest screen worth designing for -- 2.5rem put "Sustainability" about
+     three pixels wider than the content box. It would have BROKEN mid-word
+     rather than overflowed, thanks to the overflow-wrap safety net, which is
+     the kind of failure that looks like a typo rather than a bug. Above roughly
+     490px the vw term takes over and nothing else changes. */
+  --t-display: clamp(2rem, 6.5vw, 4.5rem);     /* h1  32 → 72 */
   --t-h2:      clamp(1.75rem, 3.2vw, 2.5rem);  /* h2  28 → 40 */
   --t-year:    clamp(1.5rem, 2vw, 1.75rem);    /* the year, inside h3  24 → 28 */
   --t-h3:      1.0625rem;                      /* the milestone name   17 */
@@ -49,6 +55,12 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
+
+/* At 72px a single long word can be wider than its column, and the default is
+   to let it overflow the page rather than break. "Sustainability" is fourteen
+   characters; in a 350px column at 52px it does not fit. This is the safety
+   net, not the plan -- the measures and breakpoints below are the plan. */
+h1, h2, h3, p, li { overflow-wrap: break-word; }
 
 body {
   margin: 0;
@@ -486,7 +498,33 @@ body {
 .footer a:hover { color: var(--intel-deep); }
 .footer code { font-size: .92em; color: var(--ink); }
 
-/* ======================== RESPONSIVE: STACK ========================= */
+/* ========================== RESPONSIVE ============================= */
+
+/* ⚠️ TWO breakpoints, because the hero and the timeline fail at different
+   widths. Using one number for both is what leaves a band where the page is
+   technically "responsive" and visibly broken.
+
+   The hero goes first, at 1024px. Below that its two columns are about 350px
+   each, and the headline is sized at 6.5vw -- roughly 52px at that viewport --
+   so a single word is wider than the column holding it. The timeline is fine
+   down to 768px, because a 300px card in a horizontal scroller does not care
+   how narrow the screen is. */
+@media (max-width: 1024px) {
+  .hero__inner {
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+  /* One column, so the measures that forced a two-line headline now only
+     narrow it. Released, and the column does the wrapping. */
+  .hero__title { max-width: 20ch; }
+  .hero__art {
+    height: auto;
+    aspect-ratio: 16 / 9;     /* the copy is above it now, nothing to match */
+    min-height: 0;
+  }
+}
+
+/* ======================== TIMELINE: STACK ========================= */
 
 /* Below 768px the timeline stops being a horizontal scroller and becomes a
    vertical stack. Sideways scrolling on a phone competes with the page's own
@@ -496,10 +534,18 @@ body {
   .track {
     flex-direction: column;
     flex-wrap: nowrap;
-    overflow-x: visible;       /* nothing to scroll sideways any more */
+    /* ⚠️ BOTH axes, not just overflow-x.
+
+       CSS does not allow one axis to be `visible` while the other is not: the
+       visible one computes to `auto`. Setting overflow-x alone left
+       overflow-y: hidden in place, which quietly kept the track a scroll
+       container -- on the one layout where nothing should scroll but the page. */
+    overflow: visible;
     scroll-snap-type: none;
     gap: var(--space-4);
-    padding-bottom: 0;
+    /* The 20px of headroom existed for the hover lift, and there is no hover
+       here. The 48px below it was for the rail, which is hidden. */
+    padding: 0;
   }
 
   .card {
@@ -525,10 +571,6 @@ body {
   .card:focus-visible,
   .card:focus-within { transform: none; box-shadow: var(--shadow-rest); }
 
-  /* The spine is a HORIZONTAL line. Stacked vertically there is nothing for it
-     to run along, so it and its nodes come off rather than being rotated into
-     a decoration that means nothing. */
-
   .hint-desktop { display: none; }
   .hint-mobile  { display: inline; }
 
@@ -540,13 +582,16 @@ body {
      viewport does the wrapping. */
   .hero__title, .timeline__heading { max-width: none; }
 
-  /* One column, and the wafer moves BELOW the copy — the headline is what the
-     page is for, and on a phone whichever comes first owns the screen. */
-  .hero__inner { grid-template-columns: 1fr; gap: var(--space-8); }
-  /* Stacked, there is no second column to match, so the photograph goes back
-     to a shape of its own. 16:9 rather than 3:2 -- a phone is tall and the hero
-     should not eat the fold. */
-  .hero__art { width: 100%; height: auto; aspect-ratio: 16 / 9; min-height: 0; }
+  /* 12px at 1.9 leading is fine on a desktop footer and too small on a phone
+     held at arm's length. Back up a step, tighter, and narrower -- a long
+     measure needs a wide screen to be scannable, and there isn't one. */
+  .footer__note {
+    font-size: var(--t-small);
+    line-height: 1.7;
+    max-width: 100%;
+  }
+  .footer { padding: var(--space-12) var(--space-4); }
+
   .timeline__intro { margin-bottom: var(--space-8); }
 }
 
