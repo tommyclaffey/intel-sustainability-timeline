@@ -1,0 +1,282 @@
+/* ============================================================
+   Intel — Sustainability Through the Ages
+   ============================================================ */
+
+/* Design tokens. Every colour and space in the file comes from here, so the
+   palette can be changed in one place instead of hunted through the rules. */
+:root {
+  --intel-blue:       #0068B5;   /* Intel's primary brand blue */
+  --intel-deep:       #00285A;   /* deep navy, for the hero gradient */
+  --intel-light:      #00C7FD;   /* the bright accent in Intel's identity */
+  --ink:              #16161C;
+  --ink-soft:         #4A5568;
+  --surface:          #FFFFFF;
+  --surface-page:     #F3F4F7;
+  --border:           #E4E7EC;
+
+  --space-2:  8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  --radius: 14px;
+  --shadow-rest:  0 1px 3px rgba(0, 40, 90, .10);
+  --shadow-lift:  0 18px 40px rgba(0, 40, 90, .22);
+
+  --font: "Intel Clear", "Helvetica Neue", Arial, system-ui, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  color: var(--ink);
+  background: var(--surface-page);
+  line-height: 1.55;
+}
+
+/* ============================== HERO ============================== */
+
+.hero {
+  /* A gradient rather than a flat fill, so the blue has some depth behind
+     white type. Angled 135deg so it reads lighter at the top-left, which is
+     where the eye lands first. */
+  background: linear-gradient(135deg, var(--intel-blue) 0%, var(--intel-deep) 100%);
+  color: #FFFFFF;
+  padding: var(--space-16) var(--space-6);
+  text-align: center;
+}
+
+.hero__inner { max-width: 760px; margin: 0 auto; }
+
+.hero__logo {
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;   /* Intel's wordmark is tightly tracked */
+  margin: 0 0 var(--space-6);
+  line-height: 1;
+}
+.hero__dot { color: var(--intel-light); }
+
+.hero__title {
+  /* clamp() is the whole responsive type story in one line: never smaller
+     than 2rem, never larger than 4rem, and fluid between — so the headline
+     fits a phone without a media query. */
+  font-size: clamp(2rem, 6vw, 4rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  margin: 0 0 var(--space-6);
+}
+
+.hero__rule {
+  display: block;
+  width: 110px; height: 3px;
+  margin: 0 auto var(--space-6);
+  background: var(--intel-light);
+}
+
+.hero__sub {
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  margin: 0 auto;
+  max-width: 60ch;      /* a measure, not a pixel width — keeps lines readable */
+  color: rgba(255, 255, 255, .92);
+}
+
+/* ============================ TIMELINE ============================ */
+
+.timeline { padding: var(--space-16) var(--space-6) var(--space-12); }
+
+.timeline__heading {
+  max-width: 1200px;
+  margin: 0 auto var(--space-8);
+  font-size: 1.5rem;
+  letter-spacing: -0.01em;
+  color: var(--intel-deep);
+}
+
+/* ---- The track: horizontal on large screens ---- */
+
+.track {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0 0 var(--space-6);
+  max-width: 1400px;
+
+  /* Flexbox does the layout. `nowrap` is what makes it a horizontal timeline
+     rather than a wrapping grid — the row is allowed to exceed the screen. */
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--space-6);
+
+  overflow-x: auto;              /* ...and the overflow becomes a scroller */
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory; /* LevelUp: each card locks into place */
+  scroll-padding-left: var(--space-6);
+  -webkit-overflow-scrolling: touch;
+}
+
+/* A visible, branded scrollbar. Left to the browser default it reads as an
+   accident; styled, it reads as an invitation to scroll. */
+.track::-webkit-scrollbar { height: 10px; }
+.track::-webkit-scrollbar-track { background: var(--border); border-radius: 99px; }
+.track::-webkit-scrollbar-thumb { background: var(--intel-blue); border-radius: 99px; }
+
+/* ---- The card ---- */
+
+.card {
+  position: relative;
+  flex: 0 0 300px;        /* fixed width, no growing or shrinking */
+  scroll-snap-align: start;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-rest);
+  overflow: hidden;       /* keeps the image corners inside the radius */
+
+  /* LevelUp: transform + shadow on hover. Both are cheap for the browser to
+     animate; animating width or top is not. */
+  transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+}
+
+.card__img {
+  display: block;
+  width: 100%;
+  height: 190px;
+  object-fit: cover;   /* fills the frame at any photo shape, never squashed */
+}
+
+.card__body { padding: var(--space-4) var(--space-4) var(--space-6); }
+
+.card__year {
+  margin: 0 0 var(--space-2);
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--intel-blue);
+  letter-spacing: -0.02em;
+}
+
+.card__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* ---- The reveal ---- */
+
+.card__reveal {
+  /* Covers the whole card and sits above it. Hidden by opacity rather than
+     display:none so it can be TRANSITIONED — display cannot animate. */
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding: var(--space-6);
+
+  background: linear-gradient(160deg, rgba(0, 40, 90, .96), rgba(0, 104, 181, .96));
+  color: #FFFFFF;
+
+  opacity: 0;
+  transform: translateY(8px);
+  /* Not clickable while hidden — without this, a link underneath would be
+     blocked by an invisible panel sitting on top of it. */
+  pointer-events: none;
+  transition: opacity .28s ease, transform .28s ease;
+}
+
+.card__reveal p { margin: 0; font-size: .95rem; }
+
+/* Hover for a mouse, focus-within for a keyboard. A hover-only reveal is
+   information a keyboard user simply never receives. */
+.card:hover,
+.card:focus-within {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: var(--shadow-lift);
+  border-color: var(--intel-blue);
+}
+.card:hover .card__reveal,
+.card:focus-within .card__reveal {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---- The hint line ---- */
+
+.timeline__hint {
+  max-width: 1400px;
+  margin: var(--space-6) auto 0;
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: .9rem;
+}
+.hint-mobile { display: none; }
+
+/* ============================== FOOTER ============================== */
+
+.footer {
+  padding: var(--space-8) var(--space-6) var(--space-12);
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: .85rem;
+}
+.footer p { max-width: 70ch; margin: 0 auto; }
+
+/* ======================== RESPONSIVE: STACK ========================= */
+
+/* Below 768px the timeline stops being a horizontal scroller and becomes a
+   vertical stack. Sideways scrolling on a phone competes with the page's own
+   vertical scroll, and the browser has to guess which one you meant. */
+@media (max-width: 768px) {
+
+  .track {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    overflow-x: visible;       /* nothing to scroll sideways any more */
+    scroll-snap-type: none;
+    gap: var(--space-4);
+    padding-bottom: 0;
+  }
+
+  .card {
+    flex: 1 1 auto;            /* full width of the column */
+    width: 100%;
+  }
+
+  .card__img { height: 200px; }
+
+  /* On a touch screen there is no hover, so a hover-only reveal would hide
+     this content permanently. Shown inline instead: still styled, still
+     branded, but no longer conditional on a pointer that does not exist. */
+  .card__reveal {
+    position: static;
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+    padding: var(--space-4);
+  }
+
+  .card:hover,
+  .card:focus-within { transform: none; box-shadow: var(--shadow-rest); }
+
+  .hint-desktop { display: none; }
+  .hint-mobile  { display: inline; }
+
+  .timeline { padding: var(--space-12) var(--space-4); }
+  .hero     { padding: var(--space-12) var(--space-4); }
+}
+
+/* ========================= REDUCED MOTION ========================== */
+
+/* Some people get motion sick from transforms. The reveal still works; it
+   just stops moving. */
+@media (prefers-reduced-motion: reduce) {
+  .card, .card__reveal { transition: none; }
+  .card:hover, .card:focus-within { transform: none; }
+}

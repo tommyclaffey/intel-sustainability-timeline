@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- Without this, a phone renders the page at ~980px wide and shrinks it.
+       Every media query below would be measured against the wrong number. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intel — Sustainability Through the Ages</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ============================== HERO ============================== -->
+  <header class="hero">
+    <div class="hero__inner">
+      <!-- The logo is text, not an image: it stays sharp at any size, scales
+           with the type, and needs no asset to load. -->
+      <p class="hero__logo">intel<span class="hero__dot">.</span></p>
+
+      <h1 class="hero__title">Sustainability<br>Through the Ages</h1>
+
+      <span class="hero__rule" aria-hidden="true"></span>
+
+      <p class="hero__sub">
+        Explore Intel&rsquo;s journey through time &mdash; from its founding to a
+        net-zero future &mdash; and how a commitment to innovation has shaped a
+        more sustainable path for technology and the planet.
+      </p>
+    </div>
+  </header>
+
+  <!-- ============================ TIMELINE ============================ -->
+  <main>
+    <section class="timeline" aria-labelledby="timeline-heading">
+      <h2 id="timeline-heading" class="timeline__heading">Milestones</h2>
+
+      <!-- An ordered list, because a timeline IS an ordered list. Screen
+           readers announce "list, 8 items" and the order carries meaning. -->
+      <ol class="track">
+
+        <li class="card">
+          <img class="card__img" src="assets/1968-founded.jpg" alt="Vintage electronics laboratory equipment">
+          <div class="card__body">
+            <p class="card__year">1968</p>
+            <h3 class="card__title">Intel is founded</h3>
+          </div>
+          <div class="card__reveal">
+            <p>Robert Noyce and Gordon Moore found Intel in Mountain View, California,
+               beginning a company whose efficiency gains would later shape the energy
+               footprint of computing worldwide.</p>
+          </div>
+        </li>
+
+        <li class="card">
+          <img class="card__img" src="assets/1971-microprocessor.jpg" alt="Close-up of a microprocessor on a circuit board">
+          <div class="card__body">
+            <p class="card__year">1971</p>
+            <h3 class="card__title">The first microprocessor</h3>
+          </div>
+          <div class="card__reveal">
+            <p>The Intel 4004 puts a complete CPU on a single chip. Integration is the
+               original efficiency story: fewer parts, less material, and far less power
+               for the same work.</p>
+          </div>
+        </li>
+
+        <li class="card">
+          <img class="card__img" src="assets/2008-leadfree.jpg" alt="Processor mounted on a green circuit board">
+          <div class="card__body">
+            <p class="card__year">2008</p>
+            <h3 class="card__title">Lead-free processors</h3>
+          </div>
+          <div class="card__reveal">
+            <p>Intel completes the transition to lead-free manufacturing across its
+               processors, removing a hazardous heavy metal from products shipped by
+               the hundreds of millions.</p>
+          </div>
+        </li>
+
+        <li class="card">
+          <img class="card__img" src="assets/2012-green-power.jpg" alt="Rows of solar panels in bright sun">
+          <div class="card__body">
+            <p class="card__year">2012</p>
+            <h3 class="card__title">Largest green power buyer</h3>
+          </div>
+          <div class="card__reveal">
+            <p>Intel is recognised by the U.S. EPA as the country&rsquo;s largest voluntary
+               purchaser of green power &mdash; a position it held for more than a decade,
+               driving demand for renewables at national scale.</p>
+          </div>
+        </li>
+
+        <li class="card">
+          <img class="card__img" src="assets/2020-rise.jpg" alt="Wind turbines on open land">
+          <div class="card__body">
+            <p class="card__year">2020</p>
+            <h3 class="card__title">The RISE strategy</h3>
+          </div>
+          <div class="card__reveal">
+            <p>Intel launches RISE &mdash; Responsible, Inclusive, Sustainable, Enabling &mdash;
+               setting 2030 goals and committing to use its scale to move the wider
+               technology industry, not just its own operations.</p>
+          </div>
+        </li>
+
+        <li class="card">
+          <img class="card__img" src="assets/2030-water.jpg" alt="Aerial view of a water treatment facility">
+          <div class="card__body">
+            <p class="card__year">2030</p>
+            <h3 class="card__title">Net positive water</h3>
+          </div>
+          <div class="card__reveal">
+            <p>Goals for the decade: 100% renewable electricity globally, net positive
+               water, and zero total waste to landfill. Chip fabrication is water-intensive,
+               which is exactly why returning more than is used matters.</p>
+          </div>
+        </li>
+
+        <li class="card">
+          <img class="card__img" src="assets/2040-netzero.jpg" alt="Wind farm at sunset">
+          <div class="card__body">
+            <p class="card__year">2040</p>
+            <h3 class="card__title">Net-zero operations</h3>
+          </div>
+          <div class="card__reveal">
+            <p>A commitment to net-zero greenhouse gas emissions across Intel&rsquo;s own
+               operations &mdash; Scope 1 and 2 &mdash; covering the factories and the
+               electricity that runs them.</p>
+          </div>
+        </li>
+
+        <li class="card">
+          <img class="card__img" src="assets/2050-scope3.jpg" alt="Aerial view of a dense pine forest">
+          <div class="card__body">
+            <p class="card__year">2050</p>
+            <h3 class="card__title">Net-zero value chain</h3>
+          </div>
+          <div class="card__reveal">
+            <p>The hardest target: net-zero upstream emissions across suppliers and
+               materials. Scope 3 is most of a chip company&rsquo;s real footprint, and it
+               cannot be reached alone.</p>
+          </div>
+        </li>
+
+      </ol>
+
+      <p class="timeline__hint">
+        <span class="hint-desktop">Scroll sideways to move through time &middot; hover a card for the detail</span>
+        <span class="hint-mobile">Scroll to move through time &middot; tap a card for the detail</span>
+      </p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Built as coursework. Milestones reflect Intel&rsquo;s publicly stated
+       sustainability commitments. Photography is CC0 &mdash; see assets/CREDITS.json.</p>
+  </footer>
+
+</body>
+</html>
