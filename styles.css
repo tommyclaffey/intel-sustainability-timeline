@@ -113,6 +113,11 @@ body {
   flex-wrap: nowrap;
   gap: var(--space-6);
 
+  /* Headroom for the spine. Without it the line sits at the cards' own top
+     edge and reads as a stray rule grazing them rather than an axis they hang
+     from. */
+  padding-top: 40px;
+
   overflow-x: auto;              /* ...and the overflow becomes a scroller */
   overflow-y: hidden;
   scroll-snap-type: x mandatory; /* LevelUp: each card locks into place */
@@ -136,26 +141,39 @@ body {
 
 .track { position: relative; }
 
-.track::before {
+/* ⚠️ The line is drawn PER CARD, not once across the track.
+
+   As a single absolutely-positioned element on the track it only spanned the
+   VISIBLE width -- an abspos box in a horizontal scroller is sized against the
+   padding box, not the scrollable content -- so the line simply stopped partway
+   along and left the later milestones without an axis.
+
+   Each card instead draws its own segment, one card wide plus one gap, and the
+   segments meet to form a continuous line that scrolls with the cards because
+   it IS the cards. The last one stops at its own edge so the line ends on the
+   final milestone rather than trailing into empty space. */
+.card::before {
   content: "";
   position: absolute;
-  left: 0; right: 0;
-  top: 24px;                 /* sits behind the top strip of every card */
+  top: -20px;
+  left: 0;
+  width: calc(100% + var(--space-6));   /* card + the gap to the next one */
   height: 3px;
   background: linear-gradient(90deg, var(--intel-light), var(--intel-blue));
   opacity: .35;
   z-index: 0;
 }
+.card:last-child::before { width: 100%; }
 
 /* The node that marks this card's place on the line. */
 .card__node {
   position: absolute;
-  top: -7px; left: 24px;
+  top: -28px; left: 24px;    /* 40px card offset - 28 = on the line */
   width: 14px; height: 14px;
   border-radius: 50%;
   background: var(--surface);
   border: 3px solid var(--intel-blue);
-  z-index: 2;
+  z-index: 3;                /* above the reveal, which covers the card */
   transition: background .28s ease, transform .28s ease;
 }
 .card:hover .card__node,
@@ -167,14 +185,22 @@ body {
   position: relative;
   flex: 0 0 300px;        /* fixed width, no growing or shrinking */
   scroll-snap-align: start;
-  margin-top: 24px;       /* clears the spine, which the node then touches */
   z-index: 1;             /* above the line, below the node */
 
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-rest);
-  overflow: hidden;       /* keeps the image corners inside the radius */
+
+  /* NOT overflow: hidden.
+
+     It was there to keep the photo's corners inside the card radius, and it
+     also clipped the spine node -- which is deliberately positioned outside
+     the card, on the line above it. Half of every node was being cut off.
+
+     The image and the reveal now carry their own radius instead, so the one
+     thing that needed clipping is clipped and nothing else is. */
+  overflow: visible;
 
   /* LevelUp: transform + shadow on hover. Both are cheap for the browser to
      animate; animating width or top is not. */
@@ -186,6 +212,7 @@ body {
   width: 100%;
   height: 190px;
   object-fit: cover;   /* fills the frame at any photo shape, never squashed */
+  border-radius: var(--radius) var(--radius) 0 0;   /* was the parent's job */
 }
 
 .card__body { padding: var(--space-4) var(--space-4) var(--space-6); }
@@ -219,6 +246,7 @@ body {
 
   background: linear-gradient(160deg, rgba(0, 40, 90, .96), rgba(0, 104, 181, .96));
   color: #FFFFFF;
+  border-radius: var(--radius);                      /* was the parent's job */
 
   opacity: 0;
   transform: translateY(8px);
@@ -321,9 +349,9 @@ body {
   /* The spine is a HORIZONTAL line. Stacked vertically there is nothing for it
      to run along, so it and its nodes come off rather than being rotated into
      a decoration that means nothing. */
-  .track::before { display: none; }
+  .card::before { display: none; }
   .card__node { display: none; }
-  .card { margin-top: 0; }
+  .track { padding-top: 0; }
 
   .hint-desktop { display: none; }
   .hint-mobile  { display: inline; }
