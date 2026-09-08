@@ -32,6 +32,30 @@ between. One line replaces three breakpoints.
 All photography is **CC0** (public domain, commercial use, no attribution
 required). Sources are recorded in `assets/CREDITS.json`.
 
+## The one piece of JavaScript
+
+`script.js` drives the scroll-progress rail under the timeline: a dot that
+travels as you scroll, a fill behind it, click-to-jump, and arrow-key support.
+
+It was CSS scroll-driven animation first — `scroll-timeline` plus
+`timeline-scope`, no script at all. That is the more elegant answer and it works
+in Chrome, Edge and Safari 26, but not Firefox, where it degrades to a rail that
+never moves. A progress rail is worse broken than absent, so it moved to fifteen
+lines of JavaScript that work everywhere.
+
+The script owns **position only**. Every colour, size and transition stays in
+the stylesheet.
+
+Two details in it worth knowing:
+
+- Progress is `scrollLeft / (scrollWidth - clientWidth)`. Dividing by
+  `scrollWidth` is the classic version of this bug and makes the dot stop short
+  of the end by exactly one screen.
+- Scroll events fire far more often than the screen refreshes, so updates are
+  batched into `requestAnimationFrame`. Without it the same work runs several
+  times between paints, and every run but the last is overwritten before
+  anything is drawn.
+
 ## Run it
 
 Open `index.html` in a browser. No build step, no dependencies.

@@ -163,7 +163,12 @@
       <!-- Scroll progress. aria-hidden because it duplicates information the
            scrollbar and the cards already carry -- it is a visual aid, not a
            second source of truth for a screen reader to read out. -->
-      <div class="progress" aria-hidden="true">
+      <!-- A slider role rather than aria-hidden: it is now clickable, so it is
+           a control, and a control a screen reader cannot see is a control some
+           people simply do not have. -->
+      <div class="progress" role="slider" tabindex="0"
+           aria-label="Timeline scroll position"
+           aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
         <span class="progress__fill"></span>
         <span class="progress__dot"></span>
       </div>
@@ -179,6 +184,11 @@
     <p>Built as coursework. Milestones reflect Intel&rsquo;s publicly stated
        sustainability commitments. Photography is CC0 &mdash; see assets/CREDITS.json.</p>
   </footer>
+
+  <!-- `defer` so the parser is never blocked: the script downloads alongside
+       the HTML and runs once the DOM is ready, which is also why it can query
+       for .track immediately without waiting for an event. -->
+  <script src="script.js" defer></script>
 
 </body>
 </html>

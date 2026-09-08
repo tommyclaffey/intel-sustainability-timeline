@@ -390,20 +390,14 @@ body {
    A dot that travels the line as the timeline is scrolled, and a fill that
    grows behind it.
 
-   No JavaScript. This uses a scroll-driven animation: `.track` publishes its
-   own inline (horizontal) scroll position as a named timeline, and these two
-   elements animate against it. The keyframes describe the START and END
-   states; the scroll position decides where between them you are.
+   Driven by script.js. This was CSS scroll-driven animation first, which is
+   the more elegant answer and works in Chrome, Edge and Safari 26 -- but not
+   Firefox, where it degrades to a rail that never moves. Fifteen lines of
+   JavaScript work everywhere, and the rail is the kind of feature that is
+   worse broken than absent.
 
-   ⚠️ `timeline-scope` on the section is what makes it work at all. A named
-   scroll timeline is normally only visible to DESCENDANTS of the element that
-   defines it, and the progress bar is a SIBLING of the track, not a child.
-   `timeline-scope` raises the name to a shared ancestor so the sibling can
-   see it. Without it the rule parses, applies, and does nothing -- silent,
-   which is the worst kind of not-working. */
-
-.timeline { timeline-scope: --track-scroll; }
-.track    { scroll-timeline: --track-scroll inline; }
+   The script owns POSITION only. Every colour, size and transition stays
+   here, so the rail can be restyled without touching the logic. */
 
 .progress {
   position: relative;
@@ -439,21 +433,24 @@ body {
   box-shadow: 0 2px 8px rgba(0, 40, 90, .28);
 }
 
-@keyframes track-fill { from { width: 0%;  } to { width: 100%; } }
-@keyframes track-dot  { from { left: 0%;   } to { left: 100%;  } }
+/* Shown by script.js, and only when there is actually something to scroll --
+   a progress rail for content that already fits is a control reporting on
+   nothing. The class is added by JS rather than the rail being visible by
+   default, so if the script fails to load nothing broken is left on screen. */
+.progress.is-active { display: block; }
 
-/* Only in browsers that can actually drive an animation from scroll. */
-@supports (animation-timeline: scroll()) {
-  .progress { display: block; }
+/* The travel itself is set by script.js as inline width/left. Transitioned so
+   a programmatic jump (clicking the rail) glides instead of teleporting, while
+   ordinary scrolling still tracks the finger 1:1 -- the transition is short
+   enough to be invisible during a drag. */
+.progress__fill,
+.progress__dot { transition: width .12s linear, left .12s linear; }
 
-  .progress__fill {
-    animation: track-fill linear both;
-    animation-timeline: --track-scroll;
-  }
-  .progress__dot {
-    animation: track-dot linear both;
-    animation-timeline: --track-scroll;
-  }
+/* Clicking the rail jumps the timeline, so it must look pressable. */
+.progress { cursor: pointer; }
+.progress:focus-visible {
+  outline: 3px solid var(--intel-light);
+  outline-offset: 4px;
 }
 
 /* Stacked vertically there is no horizontal scroll to report. */
@@ -464,5 +461,5 @@ body {
 /* The dot is motion tied to scrolling, which is exactly the pairing that
    causes trouble for people sensitive to it. */
 @media (prefers-reduced-motion: reduce) {
-  .progress__fill, .progress__dot { animation: none; }
+  .progress__fill, .progress__dot { transition: none; }
 }
