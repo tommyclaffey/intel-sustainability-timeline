@@ -284,6 +284,41 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
+/* ---- Fading edges ------------------------------------------------------
+
+   Cards are hard-cut at the container edge, which reads as content being
+   clipped rather than continuing. A short gradient mask softens both ends so
+   the row looks like it carries on past the frame -- which it does.
+
+   The widths are CUSTOM PROPERTIES, not fixed values, because the fade should
+   only exist on a side that actually has more content: a fade at the left edge
+   when you are already scrolled to the start is fading nothing, and reads as a
+   smudge on the first card. script.js sets the two classes.
+
+   @property is what lets a custom property ANIMATE. Without registering it the
+   browser treats the value as an opaque string, so it would snap between 0 and
+   40px rather than easing -- and the snap happens exactly at the scroll
+   extremes, where it is most visible. */
+@property --fade-left  { syntax: '<length>'; inherits: false; initial-value: 0px; }
+@property --fade-right { syntax: '<length>'; inherits: false; initial-value: 0px; }
+
+.track {
+  --fade-left: 0px;
+  --fade-right: 0px;
+
+  -webkit-mask-image: linear-gradient(to right,
+      transparent 0, #000 var(--fade-left),
+      #000 calc(100% - var(--fade-right)), transparent 100%);
+  mask-image: linear-gradient(to right,
+      transparent 0, #000 var(--fade-left),
+      #000 calc(100% - var(--fade-right)), transparent 100%);
+
+  transition: --fade-left .25s ease, --fade-right .25s ease;
+}
+
+.track.fade-left  { --fade-left: 40px; }
+.track.fade-right { --fade-right: 40px; }
+
 /* The native scrollbar is hidden, because the progress rail below the timeline
    replaces it.
 
@@ -541,6 +576,10 @@ body {
        overflow-y: hidden in place, which quietly kept the track a scroll
        container -- on the one layout where nothing should scroll but the page. */
     overflow: visible;
+    /* No horizontal overflow to hint at, and a mask on a vertical stack would
+       just fade the tops and bottoms of cards for no reason. */
+    -webkit-mask-image: none;
+    mask-image: none;
     scroll-snap-type: none;
     gap: var(--space-4);
     /* The 20px of headroom existed for the hover lift, and there is no hover

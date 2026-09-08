@@ -106,11 +106,23 @@
     if (p === null) {
       rail.classList.remove('is-active');
       root.classList.remove('has-rail');
+      track.classList.remove('fade-left', 'fade-right');
       return;
     }
 
     rail.classList.add('is-active');
     root.classList.add('has-rail');
+
+    /* Fade an edge only when there is content past it. A fade at the left while
+       already scrolled to the start is fading nothing, and reads as a smudge on
+       the first card rather than as depth.
+
+       The 1px tolerances are not superstition: scrollLeft is fractional on a
+       trackpad and on a zoomed page, so it lands at 0.4 or at max - 0.6 and a
+       strict comparison never fires. */
+    const max = track.scrollWidth - track.clientWidth;
+    track.classList.toggle('fade-left', track.scrollLeft > 1);
+    track.classList.toggle('fade-right', track.scrollLeft < max - 1);
 
     const card = activeCard();
 
