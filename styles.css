@@ -402,8 +402,14 @@ body {
    enough to be invisible during a drag. */
 .progress__fill,
 .progress__dot {
-  transition: width .12s linear, left .18s ease,
-              transform .18s ease, background .18s ease, opacity .18s ease;
+  /* ⚠️ width and left MUST share a duration and easing curve.
+
+     The dot sits at the fill's leading edge, so if they animate at different
+     rates the dot detaches from the end of the bar mid-move and rejoins it on
+     arrival -- a wobble that is small, constant, and impossible to unsee once
+     noticed. They are one object; they move as one. */
+  transition: width .18s ease, left .18s ease,
+              transform .18s ease, background .18s ease;
 }
 
 /* Clicking the rail jumps the timeline, so it must look pressable. */
@@ -433,6 +439,9 @@ body {
   transform: scale(1.25);
   box-shadow: 0 0 0 4px rgba(0, 199, 253, .28), 0 2px 8px rgba(0, 40, 90, .28);
 }
-/* The fill dims rather than following, so the two stop reading as one object --
-   the dot has left its post to point at something. */
-.progress__fill.is-pointing { opacity: .5; }
+/* The fill EXTENDS to the dot rather than dimming, so the bar stays one object.
+   Lit to match the dot, so the state still reads as "previewing this card"
+   rather than as the scroll position having actually moved. */
+.progress__fill.is-pointing {
+  background: linear-gradient(90deg, var(--intel-light), var(--intel-light));
+}

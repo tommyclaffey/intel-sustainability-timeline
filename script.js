@@ -100,7 +100,12 @@
     // dot stops at the rail rather than sliding off it.
     ratio = Math.max(0, Math.min(1, ratio));
 
-    dot.style.left = (ratio * 100).toFixed(2) + '%';
+    const percent = (ratio * 100).toFixed(2) + '%';
+    dot.style.left = percent;
+    // The fill follows to the same point, so the bar reads as one object
+    // moving rather than a dot that has detached from its own track.
+    fill.style.width = percent;
+
     dot.classList.add('is-pointing');
     fill.classList.add('is-pointing');
   }
