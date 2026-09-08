@@ -289,6 +289,18 @@ body {
 
      `proximity` still snaps -- tidily, when you come to rest near a card -- and
      lets a deliberate scroll land where it was aimed. */
+  /* ⚠️ overscroll-behavior-x: contain.
+
+     Without it, scrolling this track back past its start hands the leftover
+     gesture to the PAGE -- and on a trackpad the browser reads a horizontal
+     overscroll as the back-navigation swipe. Scrolling backwards through the
+     timeline could start pulling the browser out of the page entirely, which
+     is why reverse scrolling felt unreliable rather than merely stiff.
+
+     `contain` keeps the gesture inside the timeline: it still stops at the
+     start, it just stops rather than escaping. */
+  overscroll-behavior-x: contain;
+
   scroll-snap-type: x proximity;
   scroll-padding-left: var(--space-6);
   -webkit-overflow-scrolling: touch;

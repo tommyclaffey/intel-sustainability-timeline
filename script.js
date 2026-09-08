@@ -244,12 +244,17 @@
        moved, which is exactly what "you can't drag it" looks like. */
     scrollToPointer(event.clientX, 'auto');
 
-    /* Focus the rail on press, so arrow keys work straight after a drag without
-       a separate tab to get here. Not preventDefault() -- that would stop the
-       browser focusing it, and the whole point of role="slider" plus tabindex
-       is that this thing is keyboard operable. `user-select: none` handles the
-       text-selection side instead. */
-    rail.focus();
+    /* ⚠️ NO rail.focus() here, and it was a mistake to add one.
+
+       Focusing it programmatically made Chrome treat the focus as
+       keyboard-initiated, so :focus-visible matched and a 3px ring wrapped the
+       whole rail the moment you grabbed it -- and stayed there after you let
+       go. The convenience was arrow keys working straight after a drag; the
+       cost was a large blue pill around the control on every single press.
+
+       Nothing is lost. The rail is still tabbable, and arrow keys still work
+       when it is focused by keyboard -- which is the case the ring exists for.
+       No scrollbar focuses itself when you drag it either. */
     render();
   });
 
