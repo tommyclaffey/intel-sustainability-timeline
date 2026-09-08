@@ -449,19 +449,32 @@ body {
    above it does the same job -- it separates rather than continues. */
 .footer {
   text-align: center;
-  padding: var(--space-12) var(--space-6) var(--space-16);
+  padding: var(--space-16) var(--space-6);
   border-top: 1px solid var(--border);
   color: var(--ink-soft);
   font-size: var(--t-small);
 }
 
-/* One paragraph, one measure. The grid wrapper and the second text style
-   existed to space and differentiate three blocks; with one block there is
-   nothing to space and nothing to differentiate. */
+/* One paragraph, set WIDE.
+
+   At 68ch this ran to four and a half cramped lines and read as a block of
+   small print. Measured rather than guessed: 350 characters at this size needs
+   roughly 780px to land on three lines, and 900px for two and a half.
+
+   ⚠️ That is past the 45–75 character measure you would use for anything meant
+   to be READ. Deliberate here -- footer fine print is scanned for a name or a
+   licence, not read start to finish, and the readable measure is the wrong
+   constraint for text nobody reads in sequence. It is the one place on this
+   page that rule gets broken, and it gets broken on purpose.
+
+   The size drops a step with it, so a wider block does not also become a
+   louder one. */
 .footer__note {
   margin: 0 auto;
-  max-width: 68ch;
-  line-height: 1.65;
+  max-width: min(100%, 860px);
+  font-size: var(--t-eyebrow);
+  line-height: 1.9;               /* open, so long lines stay trackable */
+  letter-spacing: .005em;
 }
 
 
