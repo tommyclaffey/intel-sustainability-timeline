@@ -106,13 +106,13 @@
     // moving rather than a dot that has detached from its own track.
     fill.style.width = percent;
 
+    // Only the DOT changes appearance. The fill keeps its gradient and just
+    // moves — one action, one change of identity.
     dot.classList.add('is-pointing');
-    fill.classList.add('is-pointing');
   }
 
   function stopPointing() {
     dot.classList.remove('is-pointing');
-    fill.classList.remove('is-pointing');
     render();                    // back to reporting scroll position
   }
 

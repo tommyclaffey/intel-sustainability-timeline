@@ -440,8 +440,8 @@ body {
   box-shadow: 0 0 0 4px rgba(0, 199, 253, .28), 0 2px 8px rgba(0, 40, 90, .28);
 }
 /* The fill EXTENDS to the dot rather than dimming, so the bar stays one object.
-   Lit to match the dot, so the state still reads as "previewing this card"
-   rather than as the scroll position having actually moved. */
-.progress__fill.is-pointing {
-  background: linear-gradient(90deg, var(--intel-light), var(--intel-light));
-}
+
+   It keeps its gradient. Flattening it to a single colour on hover made the bar
+   change identity as well as length -- two things happening for one action, and
+   the flat version read as a different control rather than the same one showing
+   a different value. The DOT is what changes colour; the bar just moves. */
