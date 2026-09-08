@@ -86,7 +86,18 @@ body {
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
   gap: clamp(var(--space-8), 6vw, 88px);
-  align-items: center;
+
+  /* STRETCH, not center.
+
+     Centred, the photograph was a box of its own height floating beside a text
+     block of a different height -- neither edge lined up with anything, so the
+     two columns read as "some text, and also a picture" rather than as a pair.
+
+     Stretched, the image takes its height from the copy beside it. Top and
+     bottom edges align, the hero becomes two panels of equal height, and the
+     composition holds together at every width instead of only at the one where
+     the two happened to match. */
+  align-items: stretch;
 }
 
 /* The hero photograph — an aerial wind farm seen through cloud.
@@ -107,13 +118,18 @@ body {
    layers, so both cost one property and neither affects layout. */
 .hero__art {
   position: relative;
-  aspect-ratio: 3 / 2;
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow:
     0 0 0 1px rgba(0, 199, 253, .35),
     0 30px 70px rgba(0, 16, 40, .45);
   width: 100%;
+
+  /* Height comes from the copy column. The floor is there for the case the
+     copy is short -- a very wide viewport where the headline fits on fewer
+     lines -- so the photograph can never collapse into a letterbox strip. */
+  height: 100%;
+  min-height: clamp(300px, 30vw, 460px);
 }
 
 .hero__art img {
@@ -485,7 +501,10 @@ body {
   /* One column, and the wafer moves BELOW the copy — the headline is what the
      page is for, and on a phone whichever comes first owns the screen. */
   .hero__inner { grid-template-columns: 1fr; gap: var(--space-8); }
-  .hero__art { width: 100%; }
+  /* Stacked, there is no second column to match, so the photograph goes back
+     to a shape of its own. 16:9 rather than 3:2 -- a phone is tall and the hero
+     should not eat the fold. */
+  .hero__art { width: 100%; height: auto; aspect-ratio: 16 / 9; min-height: 0; }
   .timeline__intro { margin-bottom: var(--space-8); }
 }
 
