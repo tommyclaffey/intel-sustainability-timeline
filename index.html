@@ -202,10 +202,40 @@
   </main>
 
   <footer class="footer">
-    <p>Built as coursework. Milestones reflect Intel&rsquo;s publicly stated
-       sustainability commitments. Timeline photography is CC0; the hero image is by
-       <a href="https://unsplash.com/photos/B09tL5bSQJk">Thomas Richter on Unsplash</a>.
-       Full credits in <code>assets/CREDITS.json</code>.</p>
+    <div class="footer__inner">
+
+      <p class="footer__note">
+        Built as coursework. The milestones reflect Intel&rsquo;s publicly stated
+        sustainability commitments; dates and targets are drawn from Intel&rsquo;s
+        own RISE reporting.
+      </p>
+
+      <div class="footer__credits">
+        <p class="footer__label">Image credits</p>
+        <ul>
+          <li>
+            Hero photograph by
+            <a href="https://unsplash.com/photos/B09tL5bSQJk">Thomas Richter</a>
+            on Unsplash
+          </li>
+          <li>Timeline photography &mdash; CC0 (public domain), sourced via Openverse</li>
+          <li>
+            <a href="https://commons.wikimedia.org/wiki/File:Intel_logo_2023.svg">Intel
+            logo</a> &mdash; public domain, via Wikimedia Commons
+          </li>
+        </ul>
+      </div>
+
+      <!-- ⚠️ Not boilerplate. This page uses Intel's name, logo and brand
+           colours throughout, so it has to say plainly that it is a student
+           project rather than something Intel made or approved. -->
+      <p class="footer__legal">
+        Intel and the Intel logo are trademarks of Intel Corporation, used here
+        nominatively to refer to the company this page is about. This is a student
+        project and is not affiliated with, authorised by, or endorsed by Intel.
+      </p>
+
+    </div>
   </footer>
 
   <!-- `defer` so the parser is never blocked: the script downloads alongside
