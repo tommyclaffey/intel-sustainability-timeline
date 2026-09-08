@@ -36,6 +36,12 @@ required). Sources are recorded in `assets/CREDITS.json`.
 
 `script.js` drives the scroll-progress rail under the timeline: a dot that
 travels as you scroll, a fill behind it, click-to-jump, and arrow-key support.
+It **replaces** the native scrollbar rather than sitting beside it.
+
+⚠️ The scrollbar is hidden by a `.has-rail` class the script adds, not by CSS
+alone. Hiding it unconditionally would mean a blocked or failed script left
+scrollable content with no scrollbar *and* no rail — nothing on screen saying
+it scrolls. The affordance is swapped, never removed.
 
 It was CSS scroll-driven animation first — `scroll-timeline` plus
 `timeline-scope`, no script at all. That is the more elegant answer and it works

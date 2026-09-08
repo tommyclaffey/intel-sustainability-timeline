@@ -40,10 +40,15 @@
     // screen. A progress rail reporting on nothing is a control that lies.
     if (p === null) {
       rail.classList.remove('is-active');
+      // The native scrollbar comes back with it. These two are one decision:
+      // the timeline must always have exactly one scroll affordance, never two
+      // and never none.
+      document.documentElement.classList.remove('has-rail');
       return;
     }
 
     rail.classList.add('is-active');
+    document.documentElement.classList.add('has-rail');
     const percent = (p * 100).toFixed(2) + '%';
     fill.style.width = percent;
     dot.style.left = percent;

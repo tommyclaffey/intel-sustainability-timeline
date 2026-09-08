@@ -118,11 +118,6 @@ body {
   flex-wrap: nowrap;
   gap: var(--space-6);
 
-  /* Headroom for the spine. Without it the line sits at the cards' own top
-     edge and reads as a stray rule grazing them rather than an axis they hang
-     from. */
-  padding-top: 40px;
-
   overflow-x: auto;              /* ...and the overflow becomes a scroller */
   overflow-y: hidden;
   scroll-snap-type: x mandatory; /* LevelUp: each card locks into place */
@@ -130,70 +125,22 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
-/* A visible, branded scrollbar. Left to the browser default it reads as an
-   accident; styled, it reads as an invitation to scroll. */
-.track::-webkit-scrollbar { height: 10px; }
-.track::-webkit-scrollbar-track { background: var(--border); border-radius: 99px; }
-.track::-webkit-scrollbar-thumb { background: var(--intel-blue); border-radius: 99px; }
+/* The native scrollbar is hidden, because the progress rail below the timeline
+   replaces it.
 
-/* ---- The spine ---------------------------------------------------------
-   What makes this read as a TIMELINE rather than a row of cards: one
-   continuous line with a node on each milestone.
-
-   Drawn with a pseudo-element on the track rather than a real element, so it
-   costs no markup and cannot be read out by a screen reader as content. The
-   line is decoration; the ordered list underneath is the real structure. */
-
-.track { position: relative; }
-
-/* ⚠️ The line is drawn PER CARD, not once across the track.
-
-   As a single absolutely-positioned element on the track it only spanned the
-   VISIBLE width -- an abspos box in a horizontal scroller is sized against the
-   padding box, not the scrollable content -- so the line simply stopped partway
-   along and left the later milestones without an axis.
-
-   Each card instead draws its own segment, one card wide plus one gap, and the
-   segments meet to form a continuous line that scrolls with the cards because
-   it IS the cards. The last one stops at its own edge so the line ends on the
-   final milestone rather than trailing into empty space. */
-.card::before {
-  content: "";
-  position: absolute;
-  top: -20px;
-  left: 0;
-  width: calc(100% + var(--space-6));   /* card + the gap to the next one */
-  height: 3px;
-
-  /* ⚠️ A SOLID colour, not a gradient.
-
-     Each card draws its own segment, so a gradient restarts on every one --
-     light, dark, light, dark -- and the joins show as a seam at every card
-     boundary. It read as a broken line, because visually it was one.
-
-     A gradient across the whole track would need one element spanning the
-     scrollable width, and an abspos box in a scroller cannot be that (see
-     below). Solid is seamless by construction. The gradient moved to the
-     progress rail, where it belongs to a single element and can run properly. */
-  background: var(--intel-blue);
-  opacity: .28;
-  z-index: 0;
-}
-.card:last-child::before { width: 100%; }
-
-/* The node that marks this card's place on the line. */
-.card__node {
-  position: absolute;
-  top: -28px; left: 24px;    /* 40px card offset - 28 = on the line */
-  width: 14px; height: 14px;
-  border-radius: 50%;
-  background: var(--surface);
-  border: 3px solid var(--intel-blue);
-  z-index: 3;                /* above the reveal, which covers the card */
-  transition: background .28s ease, transform .28s ease;
-}
-.card:hover .card__node,
-.card:focus-visible .card__node { background: var(--intel-light); transform: scale(1.25); }
+   ⚠️ Hiding a scrollbar normally removes an affordance and is a bad idea. It is
+   defensible here only because what replaces it is a REAL control, not a
+   decoration: the rail can be clicked to jump, operated with arrow keys, Home
+   and End, and carries role="slider" with a live value. Two scrollbars for one
+   axis is the actual problem being solved -- the native one and the rail were
+   reporting the same thing twice, one of them prettier. */
+/* Note the `.has-rail` guard: the scrollbar is hidden ONLY once the script has
+   confirmed the rail is live. Hiding it unconditionally in CSS would mean a
+   failed or blocked script left the timeline with no scrollbar AND no rail --
+   scrollable content with nothing on screen saying so. The affordance is
+   swapped, never simply removed. */
+.has-rail .track { scrollbar-width: none; }              /* Firefox */
+.has-rail .track::-webkit-scrollbar { display: none; }   /* Chrome, Safari, Edge */
 
 /* ---- The card ---- */
 
@@ -201,7 +148,6 @@ body {
   position: relative;
   flex: 0 0 300px;        /* fixed width, no growing or shrinking */
   scroll-snap-align: start;
-  z-index: 1;             /* above the line, below the node */
 
   background: var(--surface);
   border: 1px solid var(--border);
@@ -365,9 +311,6 @@ body {
   /* The spine is a HORIZONTAL line. Stacked vertically there is nothing for it
      to run along, so it and its nodes come off rather than being rotated into
      a decoration that means nothing. */
-  .card::before { display: none; }
-  .card__node { display: none; }
-  .track { padding-top: 0; }
 
   .hint-desktop { display: none; }
   .hint-mobile  { display: inline; }
@@ -402,8 +345,10 @@ body {
 .progress {
   position: relative;
   max-width: 1400px;
-  margin: var(--space-8) auto 0;
-  height: 4px;
+  /* Tight to the track: it is the scrollbar's replacement, so it belongs where
+     the scrollbar was rather than floating as a separate element. */
+  margin: var(--space-4) auto 0;
+  height: 6px;
   border-radius: 99px;
   background: var(--border);
 
