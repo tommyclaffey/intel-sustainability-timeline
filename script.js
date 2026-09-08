@@ -16,14 +16,24 @@
   // than none, and a null here would throw and take the rest of the file down.
   if (!track || !rail || !fill || !dot) return;
 
-  /* The card the dot is currently pointing at, or null when the rail is doing
-     its ordinary job of reporting scroll position.
+  const cards = Array.prototype.slice.call(document.querySelectorAll('.card'));
 
-     ⭐ ONE variable is what makes this correct. The two modes -- reporting and
-     pointing -- used to be separate code paths that both wrote to the same two
-     elements, and they raced: a scroll queued a frame, a hover moved the dot,
-     then the queued frame landed and moved it back while it was still lit. */
-  let pointed = null;
+  /* ⚠️ Which card is "active" is DERIVED from geometry, not remembered from a
+     mouseenter event.
+
+     That was the bug. mouseenter and mouseleave fire when the POINTER moves --
+     not when the element moves under a pointer that is holding still. So
+     scrolling slid cards past a stationary cursor without firing either event,
+     and the dot went on pointing at the card the mouse had originally entered,
+     following it off the end of the rail while a different card sat under the
+     cursor.
+
+     Storing the last pointer position and asking "which card is under this X
+     right now" is correct at every moment, because it is recomputed rather than
+     remembered. Scroll, resize and pointer movement all land in the same place
+     and none of them can disagree. */
+  let pointerX = null;      // last known pointer position, viewport coords
+  let focusedCard = null;   // keyboard overrides the pointer
 
   /**
    * How far along the timeline we are, 0 to 1, or null if nothing can scroll.
@@ -62,6 +72,28 @@
     return (centre - railBox.left) / railBox.width;
   }
 
+  /**
+   * The card the dot should point at, or null to report scroll position.
+   *
+   * NEAREST CENTRE rather than "the card containing X". Strict containment
+   * leaves the pointer in the gap between two cards belonging to neither, so
+   * the dot dropped back to scroll position and re-lit on every gap crossed --
+   * a flicker on the way between every pair of cards.
+   */
+  function activeCard() {
+    if (focusedCard) return focusedCard;
+    if (pointerX === null || cards.length === 0) return null;
+
+    let best = null;
+    let bestDistance = Infinity;
+    for (let i = 0; i < cards.length; i += 1) {
+      const box = cards[i].getBoundingClientRect();
+      const distance = Math.abs((box.left + box.width / 2) - pointerX);
+      if (distance < bestDistance) { bestDistance = distance; best = cards[i]; }
+    }
+    return best;
+  }
+
   /* The single place either mode is drawn. Both used to write to the same
      elements from different functions; now there is one writer and one rule
      for which value it uses. */
@@ -80,9 +112,26 @@
     rail.classList.add('is-active');
     root.classList.add('has-rail');
 
-    if (pointed) {
-      place(ratioForCard(pointed));
+    const card = activeCard();
+
+    /* The CARD is marked too, not just the dot.
+
+       CSS :hover has the same weakness as mouseenter -- browsers re-evaluate it
+       lazily after a scroll, so a card sliding under a stationary cursor often
+       does not light up until the mouse is nudged. The reveal looked
+       intermittent for exactly the reason the dot did.
+
+       `.is-active` is applied from the same geometry that moves the dot, so the
+       two can never disagree about which card is being looked at. The :hover
+       rules stay in the stylesheet, so the reveal still works with no JS at
+       all -- this makes it consistent, it does not make it possible. */
+    cards.forEach(function (c) { c.classList.toggle('is-active', c === card); });
+
+    if (card) {
+      dot.classList.add('is-pointing');
+      place(ratioForCard(card));
     } else {
+      dot.classList.remove('is-pointing');
       place(p);
       rail.setAttribute('aria-valuenow', Math.round(p * 100));
     }
@@ -111,26 +160,26 @@
 
   /* ---- Pointing at a hovered card ---------------------------------------- */
 
-  function pointAt(card) {
-    pointed = card;
-    dot.classList.add('is-pointing');
-    render();
-  }
+  /* On the TRACK, not on each card. One listener that records where the pointer
+     is, rather than sixteen that try to remember which card it was last inside.
+     Scrolling then resolves to the right card for free, because the answer is
+     recomputed from the new positions. */
+  track.addEventListener('mousemove', function (event) {
+    pointerX = event.clientX;
+    schedule();
+  }, { passive: true });
 
-  function stopPointing() {
-    pointed = null;
-    dot.classList.remove('is-pointing');
-    render();
-  }
+  track.addEventListener('mouseleave', function () {
+    pointerX = null;
+    schedule();
+  });
 
-  document.querySelectorAll('.card').forEach(function (card) {
-    card.addEventListener('mouseenter', function () { pointAt(card); });
-    card.addEventListener('mouseleave', stopPointing);
-    // The cards are focusable, so the same feedback has to reach the keyboard.
-    // Without these, tabbing the timeline moves the reveal but leaves the dot
-    // behind, pointing at nothing.
-    card.addEventListener('focus', function () { pointAt(card); });
-    card.addEventListener('blur', stopPointing);
+  // The cards are focusable, so the same feedback has to reach the keyboard --
+  // without this, tabbing the timeline moves the reveal but leaves the dot
+  // behind. Focus outranks the pointer: the last deliberate action wins.
+  cards.forEach(function (card) {
+    card.addEventListener('focus', function () { focusedCard = card; render(); });
+    card.addEventListener('blur', function () { focusedCard = null; render(); });
   });
 
   /* ---- The rail as a control --------------------------------------------- */

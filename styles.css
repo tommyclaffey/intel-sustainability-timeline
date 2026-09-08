@@ -252,6 +252,7 @@ body {
    itself is the thing that receives focus. :focus-visible rather than :focus,
    so a mouse click does not leave a focus ring behind. */
 .card:hover,
+.card.is-active,
 .card:focus-visible,
 .card:focus-within {
   transform: translateY(-8px) scale(1.02);
@@ -259,6 +260,7 @@ body {
   border-color: var(--intel-blue);
 }
 .card:hover .card__reveal,
+.card.is-active .card__reveal,
 .card:focus-visible .card__reveal,
 .card:focus-within .card__reveal {
   opacity: 1;
@@ -328,6 +330,7 @@ body {
   }
 
   .card:hover,
+  .card.is-active,
   .card:focus-visible,
   .card:focus-within { transform: none; box-shadow: var(--shadow-rest); }
 
@@ -348,7 +351,7 @@ body {
    just stops moving. */
 @media (prefers-reduced-motion: reduce) {
   .card, .card__reveal { transition: none; }
-  .card:hover, .card:focus-within { transform: none; }
+  .card:hover, .card.is-active, .card:focus-within { transform: none; }
 }
 
 /* ===================== SCROLL PROGRESS (pure CSS) =====================
