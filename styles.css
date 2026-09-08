@@ -192,15 +192,19 @@ body {
      larger than it on a phone. A mark and a message competing for the same
      rank, with the mark winning on the screen where there is least room.
 
-     Now roughly 0.45 of cap height from 768px up -- a mark that identifies the
-     page rather than one competing to be read first. 24px tall and 65px wide on
-     a desktop, which is the size a wordmark sits at in a real site header.
+     Now roughly 0.5 of cap height from 768px up. Landed by bracketing rather
+     than guessing: 0.60 read as competing with the headline, 0.45 read as
+     apologetic, and this sits between the two rejected ends. 28px tall and 76px
+     wide on a desktop.
 
-     The 16px floor is a legibility limit rather than a mathematical one. The
-     ratio would want ~14px at 375px, and below 16 the letterforms start to
-     close up on a non-retina screen -- an illegible logo is a worse failure
-     than a slightly large one, so mobile is deliberately the loosest fit. */
-  height: clamp(16px, 1.9vw, 24px);
+     Half the headline's cap height is a good rule of thumb for a wordmark above
+     a display line -- unmistakably present, unmistakably not the message.
+
+     The 18px floor is a legibility limit rather than a mathematical one. The
+     ratio would want ~16px at 375px, and the letterforms start closing up below
+     that on a non-retina screen -- so mobile is deliberately the loosest fit.
+     An illegible logo is a worse failure than a slightly large one. */
+  height: clamp(18px, 2.2vw, 28px);
   width: auto;
   margin: 0 0 var(--space-8);   /* left-aligned, and given room to breathe */
 }
