@@ -76,7 +76,62 @@ body {
   text-align: left;
 }
 
-.hero__inner { max-width: 1400px; margin: 0 auto; }
+/* Two columns: copy left, wafer right. `minmax(0, …)` on the first column is
+   what stops a long unbroken word forcing the grid wider than the page --
+   a grid track's default minimum is `auto`, which means "as wide as my content
+   demands", not "as wide as there is room for". */
+.hero__inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: clamp(var(--space-8), 6vw, 88px);
+  align-items: center;
+}
+
+/* The wafer, masked to a circle.
+
+   The source photograph is a circular wafer on a cream studio background, and
+   that cream would fight a navy hero. Masking to a circle and scaling the image
+   slightly past the frame pushes the background outside the mask, so what is
+   left is the wafer itself floating on the gradient.
+
+   The rings are drawn with box-shadow rather than borders -- a spread-only
+   shadow can be layered, so two rings cost one property and add no layout. */
+.hero__art {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(0, 199, 253, .45),
+    0 0 0 14px rgba(0, 199, 253, .06),
+    0 30px 80px rgba(0, 20, 50, .45);
+  justify-self: center;
+  width: min(100%, 460px);
+}
+
+.hero__art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transform: scale(1.08);       /* crops the cream ring out of the mask */
+}
+
+/* A soft blue wash so the photo sits in the palette instead of on top of it.
+   `mix-blend-mode: soft-light` tints without flattening — the iridescence,
+   which is the whole reason to use this photograph, survives. */
+.hero__art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 25%, rgba(0, 199, 253, .35), transparent 60%),
+              linear-gradient(200deg, rgba(0, 40, 90, .35), rgba(0, 104, 181, .15));
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
 
 .hero__logo {
   /* Sized by HEIGHT with width:auto, so the mark keeps its own proportions
@@ -423,6 +478,11 @@ body {
      it on a narrow one — 16ch at 40px is four words a line. Released, and the
      viewport does the wrapping. */
   .hero__title, .timeline__heading { max-width: none; }
+
+  /* One column, and the wafer moves BELOW the copy — the headline is what the
+     page is for, and on a phone whichever comes first owns the screen. */
+  .hero__inner { grid-template-columns: 1fr; gap: var(--space-8); }
+  .hero__art { width: min(100%, 320px); justify-self: start; }
   .timeline__intro { margin-bottom: var(--space-8); }
 }
 
@@ -541,3 +601,9 @@ body {
    change identity as well as length -- two things happening for one action, and
    the flat version read as a different control rather than the same one showing
    a different value. The DOT is what changes colour; the bar just moves. */
+
+/* The footer now carries a required attribution link, so it has to be visible
+   as one — a CC BY-SA credit nobody can see is not a credit. */
+.footer a { color: var(--intel-blue); }
+.footer a:hover { color: var(--intel-deep); }
+.footer code { font-size: .9em; color: var(--ink); }

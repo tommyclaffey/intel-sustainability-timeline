@@ -13,6 +13,7 @@
   <!-- ============================== HERO ============================== -->
   <header class="hero">
     <div class="hero__inner">
+      <div class="hero__copy">
       <!-- Intel's official mark, not a text approximation.
 
            Public domain: a wordmark in a plain typeface sits below the
@@ -34,6 +35,15 @@
         net-zero future &mdash; and how a commitment to innovation has shaped a
         more sustainable path for technology and the planet.
       </p>
+      </div>
+
+      <!-- alt="" because the image is illustrative, not informational: the
+           headline and subhead already say everything it conveys. An empty alt
+           tells a screen reader to skip it; LEAVING IT OUT would make the
+           reader announce the filename instead. -->
+      <div class="hero__art">
+        <img src="assets/hero-wafer.jpg" alt="" width="1400" height="1400">
+      </div>
     </div>
   </header>
 
@@ -193,7 +203,10 @@
 
   <footer class="footer">
     <p>Built as coursework. Milestones reflect Intel&rsquo;s publicly stated
-       sustainability commitments. Photography is CC0 &mdash; see assets/CREDITS.json.</p>
+       sustainability commitments. Timeline photography is CC0; the hero wafer is
+       <a href="https://commons.wikimedia.org/wiki/File:12-inch_silicon_wafer.jpg">
+       &ldquo;12-inch silicon wafer&rdquo; by Peellden</a>, CC BY-SA 3.0.
+       Full credits in <code>assets/CREDITS.json</code>.</p>
   </footer>
 
   <!-- `defer` so the parser is never blocked: the script downloads alongside
