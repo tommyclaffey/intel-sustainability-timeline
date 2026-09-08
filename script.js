@@ -3,9 +3,6 @@
    Scroll progress for the horizontal timeline.
    ============================================================ */
 
-// Wrapped in an IIFE so nothing here leaks into the global namespace --
-// `track`, `fill` and `dot` are common enough names to collide with something
-// added later.
 (function () {
   'use strict';
 
@@ -13,53 +10,89 @@
   const rail  = document.querySelector('.progress');
   const fill  = document.querySelector('.progress__fill');
   const dot   = document.querySelector('.progress__dot');
+  const root  = document.documentElement;
 
-  // If any piece is missing, do nothing at all. A half-wired progress bar is
-  // worse than none, and a null here would throw and take the rest of the
-  // script with it.
+  // If any piece is missing, do nothing. A half-wired progress bar is worse
+  // than none, and a null here would throw and take the rest of the file down.
   if (!track || !rail || !fill || !dot) return;
 
+  /* The card the dot is currently pointing at, or null when the rail is doing
+     its ordinary job of reporting scroll position.
+
+     ⭐ ONE variable is what makes this correct. The two modes -- reporting and
+     pointing -- used to be separate code paths that both wrote to the same two
+     elements, and they raced: a scroll queued a frame, a hover moved the dot,
+     then the queued frame landed and moved it back while it was still lit. */
+  let pointed = null;
+
   /**
-   * How far along the timeline we are, 0 to 1.
+   * How far along the timeline we are, 0 to 1, or null if nothing can scroll.
    *
-   * scrollWidth is the full width of the content; clientWidth is how much of
-   * it is visible. The difference is the only distance that can actually be
-   * scrolled -- dividing by scrollWidth instead is the classic version of this
-   * bug, and it makes the dot stop short of the end by exactly one screen.
+   * scrollWidth is the full content width; clientWidth is how much is visible.
+   * The difference is the only distance that can actually be scrolled --
+   * dividing by scrollWidth is the classic version of this bug and stops the
+   * dot short of the end by exactly one screen.
    */
   function progress() {
     const scrollable = track.scrollWidth - track.clientWidth;
-    if (scrollable <= 0) return null;          // nothing to scroll
+    if (scrollable <= 1) return null;
     return track.scrollLeft / scrollable;
   }
 
+  /** Put the dot (and the fill behind it) at a 0–1 position along the rail. */
+  function place(ratio) {
+    const percent = (Math.max(0, Math.min(1, ratio)) * 100).toFixed(2) + '%';
+    dot.style.left = percent;
+    fill.style.width = percent;
+  }
+
+  /**
+   * Where a card sits on the rail.
+   *
+   * Measured in VIEWPORT coordinates. getBoundingClientRect already accounts
+   * for the scroll, so converting through scrollLeft would apply it twice.
+   * Because it is live, this stays correct while the track scrolls underneath
+   * -- which is why scrolling no longer has to cancel pointing.
+   */
+  function ratioForCard(card) {
+    const cardBox = card.getBoundingClientRect();
+    const railBox = rail.getBoundingClientRect();
+    if (railBox.width === 0) return 0;
+    const centre = cardBox.left + cardBox.width / 2;
+    return (centre - railBox.left) / railBox.width;
+  }
+
+  /* The single place either mode is drawn. Both used to write to the same
+     elements from different functions; now there is one writer and one rule
+     for which value it uses. */
   function render() {
     const p = progress();
 
-    // Hidden when the content already fits -- on a phone, or a very wide
-    // screen. A progress rail reporting on nothing is a control that lies.
+    // Nothing to scroll -- on a phone, or a very wide screen. The rail hides
+    // and the native scrollbar comes back with it, so the timeline always has
+    // exactly one scroll affordance: never two, and never none.
     if (p === null) {
       rail.classList.remove('is-active');
-      // The native scrollbar comes back with it. These two are one decision:
-      // the timeline must always have exactly one scroll affordance, never two
-      // and never none.
-      document.documentElement.classList.remove('has-rail');
+      root.classList.remove('has-rail');
       return;
     }
 
     rail.classList.add('is-active');
-    document.documentElement.classList.add('has-rail');
-    const percent = (p * 100).toFixed(2) + '%';
-    fill.style.width = percent;
-    dot.style.left = percent;
-    rail.setAttribute('aria-valuenow', Math.round(p * 100));
+    root.classList.add('has-rail');
+
+    if (pointed) {
+      place(ratioForCard(pointed));
+    } else {
+      place(p);
+      rail.setAttribute('aria-valuenow', Math.round(p * 100));
+    }
   }
 
-  /* Scroll fires far more often than the screen refreshes. Without this the
-     same work runs several times between paints, and the extra runs are
-     invisible by definition -- they are overwritten before anything is drawn. */
+  /* Scroll fires far more often than the screen repaints, so the work batches
+     into one frame. Every listener goes through this -- an unbatched render()
+     anywhere else silently undoes the batching for the whole file. */
   let queued = false;
-  function onScroll() {
+  function schedule() {
     if (queued) return;
     queued = true;
     requestAnimationFrame(function () {
@@ -68,74 +101,41 @@
     });
   }
 
-  // `passive: true` promises the listener will not call preventDefault, which
-  // lets the browser scroll without waiting to find out. On a touch device
-  // that is the difference between smooth and sticky.
-  track.addEventListener('scroll', onScroll, { passive: true });
+  // `passive: true` promises this never calls preventDefault, so the browser
+  // can scroll without waiting to find out.
+  track.addEventListener('scroll', schedule, { passive: true });
 
-  /* Resizing changes both scrollWidth and clientWidth, so the rail has to be
-     recalculated -- including crossing the 768px breakpoint, where the track
-     stops scrolling sideways entirely and the rail must hide itself. */
-  window.addEventListener('resize', onScroll);
+  // Resizing changes scrollWidth and clientWidth both, including across the
+  // 768px breakpoint where the track stops scrolling sideways altogether.
+  window.addEventListener('resize', schedule);
 
-  /* ---- Pointing at a hovered card ----------------------------------------
+  /* ---- Pointing at a hovered card ---------------------------------------- */
 
-     Hovering a card sends the dot to sit under that card's centre and lights
-     it up, so the rail answers "which one am I looking at" as well as "how far
-     along am I".
-
-     Measured in VIEWPORT coordinates, not scroll coordinates. The dot's job is
-     to point at where the card is on screen right now, and getBoundingClientRect
-     already accounts for the scroll -- converting through scrollLeft would be
-     doing the same arithmetic twice, in the wrong direction. */
   function pointAt(card) {
-    const cardBox = card.getBoundingClientRect();
-    const railBox = rail.getBoundingClientRect();
-    if (railBox.width === 0) return;
-
-    const centre = cardBox.left + cardBox.width / 2;
-    let ratio = (centre - railBox.left) / railBox.width;
-
-    // A card can be half off-screen at the ends of the scroll. Clamped, so the
-    // dot stops at the rail rather than sliding off it.
-    ratio = Math.max(0, Math.min(1, ratio));
-
-    const percent = (ratio * 100).toFixed(2) + '%';
-    dot.style.left = percent;
-    // The fill follows to the same point, so the bar reads as one object
-    // moving rather than a dot that has detached from its own track.
-    fill.style.width = percent;
-
-    // Only the DOT changes appearance. The fill keeps its gradient and just
-    // moves — one action, one change of identity.
+    pointed = card;
     dot.classList.add('is-pointing');
+    render();
   }
 
   function stopPointing() {
+    pointed = null;
     dot.classList.remove('is-pointing');
-    render();                    // back to reporting scroll position
+    render();
   }
 
   document.querySelectorAll('.card').forEach(function (card) {
     card.addEventListener('mouseenter', function () { pointAt(card); });
     card.addEventListener('mouseleave', stopPointing);
     // The cards are focusable, so the same feedback has to reach the keyboard.
-    // Without these, tabbing through the timeline moves the reveal but leaves
-    // the dot behind, pointing at nothing.
+    // Without these, tabbing the timeline moves the reveal but leaves the dot
+    // behind, pointing at nothing.
     card.addEventListener('focus', function () { pointAt(card); });
     card.addEventListener('blur', stopPointing);
   });
 
-  /* Scrolling while pointing would leave the dot stale -- it was placed against
-     a card position that has since moved. Pointing is dropped, and the normal
-     scroll readout takes over. */
-  track.addEventListener('scroll', function () {
-    if (dot.classList.contains('is-pointing')) stopPointing();
-  }, { passive: true });
+  /* ---- The rail as a control --------------------------------------------- */
 
-  /* Click the rail to jump there. The rail already shows where you are; making
-     it show where you COULD be costs four lines and turns a readout into a
-     control. */
+  // Click anywhere on it to jump there.
   rail.addEventListener('click', function (event) {
     const box = rail.getBoundingClientRect();
     const ratio = (event.clientX - box.left) / box.width;
@@ -145,10 +145,9 @@
 
   /* Arrow keys, because the markup says role="slider" and tabindex="0".
 
-     A slider that can be focused but not operated is a control that announces
-     an ability it does not have -- the same defect as a button with no handler,
-     except a screen reader has already told the user it works. Either the role
-     comes off or the keys go in; the keys are four lines. */
+     A slider that can be focused but not operated announces an ability it does
+     not have -- the same defect as a button with no handler, except a screen
+     reader has already told the user it works. */
   rail.addEventListener('keydown', function (event) {
     const step = track.clientWidth * 0.9;   // most of a screen, keeping context
     let delta = 0;
@@ -163,9 +162,8 @@
     track.scrollBy({ left: delta, behavior: 'smooth' });
   });
 
-  // Images change the track's height, not its width, so they cannot move the
-  // progress -- but a slow font or a late stylesheet can. One recalculation
-  // after load covers it.
+  // A late font or stylesheet can change the track's measurements after the
+  // first paint.
   window.addEventListener('load', render);
 
   render();

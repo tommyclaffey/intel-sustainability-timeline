@@ -131,7 +131,19 @@ body {
 
   overflow-x: auto;              /* ...and the overflow becomes a scroller */
   overflow-y: hidden;
-  scroll-snap-type: x mandatory; /* LevelUp: each card locks into place */
+  /* ⚠️ `proximity`, not `mandatory`.
+
+     Mandatory snap fights every programmatic scroll this page makes. Clicking
+     the rail at 70% calls scrollTo, mandatory yanks it to the nearest card
+     start, and with smooth behaviour the two animations argue on the way --
+     which reads as the scroll being buggy, because functionally it is.
+
+     It fights the user too: mandatory forbids resting between cards, so a
+     small wheel nudge is either ignored or overshoots to the next snap point.
+
+     `proximity` still snaps -- tidily, when you come to rest near a card -- and
+     lets a deliberate scroll land where it was aimed. */
+  scroll-snap-type: x proximity;
   scroll-padding-left: var(--space-6);
   -webkit-overflow-scrolling: touch;
 }
