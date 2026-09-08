@@ -39,8 +39,18 @@
      the kind of failure that looks like a typo rather than a bug. Above roughly
      490px the vw term takes over and nothing else changes. */
   --t-display: clamp(2rem, 6.5vw, 4.5rem);     /* h1  32 → 72 */
-  --t-h2:      clamp(1.75rem, 3.2vw, 2.5rem);  /* h2  28 → 40 */
-  --t-year:    clamp(1.5rem, 2vw, 1.75rem);    /* the year, inside h3  24 → 28 */
+  /* The floor is 1.375rem, not 1.75rem. At 375px the h1 lands on its own floor
+     of 32px, so a 28px h2 sat 1.14x below it -- a section heading nearly as
+     loud as the page headline, which is not a hierarchy, it is two headlines.
+     22px restores a 1.45x step on a phone and changes nothing above ~690px,
+     where the vw term takes over. */
+  --t-h2:      clamp(1.5rem, 3.2vw, 2.5rem);   /* h2  24 → 40 */
+  /* The year's floor came down with the h2's. At 24px it was LARGER than the
+     section heading above it on every screen below 1024px -- a number inside a
+     card out-ranking the heading of the section containing it. Both floors were
+     set independently and neither was checked against the other, which is how
+     an inversion survives a scale that looks orderly written down. */
+  --t-year:    clamp(1.25rem, 2vw, 1.75rem);   /* year, inside h3  20 → 28 */
   --t-h3:      1.0625rem;                      /* the milestone name   17 */
   --t-lead:    clamp(1rem, 1.4vw, 1.1875rem);  /* hero subhead         16 → 19 */
   --t-body:    1rem;                           /* 16 */
