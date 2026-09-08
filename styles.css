@@ -455,26 +455,16 @@ body {
   font-size: var(--t-small);
 }
 
-/* The same 1400px container the hero, heading and cards use, so the footer
-   starts on the page's one vertical edge. */
-.footer__inner {
-  max-width: 1400px;
-  margin: 0 auto;
-  display: grid;
-  gap: var(--space-4);      /* three short lines, not three sections */
-  grid-template-columns: 1fr;
-}
-.footer__note { margin: 0 auto; max-width: 60ch; line-height: 1.6; }
-
-
-
-.footer__legal {
+/* One paragraph, one measure. The grid wrapper and the second text style
+   existed to space and differentiate three blocks; with one block there is
+   nothing to space and nothing to differentiate. */
+.footer__note {
   margin: 0 auto;
   max-width: 68ch;
-  font-size: var(--t-eyebrow);
-  line-height: 1.6;
-  color: var(--ink-faint);
+  line-height: 1.65;
 }
+
+
 
 /* ⚠️ `.footer code` was declared TWICE here, at .9em and .92em -- a rule added
    once, forgotten, and added again two pixels different. Which won came down to
