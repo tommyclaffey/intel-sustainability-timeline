@@ -22,6 +22,23 @@
   --space-12: 48px;
   --space-16: 64px;
 
+  /* ---- Type scale -------------------------------------------------------
+     A ladder, not a pile of one-off rem values. Each step is meaningfully
+     larger than the one below it -- roughly a 1.25 ratio at the small end,
+     opening up at the display sizes where the jumps need to be obvious.
+
+     The fluid ones use clamp(min, preferred, max): never smaller than the
+     first, never larger than the third, scaling with the viewport between.
+     That replaces three breakpoints with one line. */
+  --t-display: clamp(2.5rem, 6.5vw, 4.5rem);   /* h1  40 → 72 */
+  --t-h2:      clamp(1.75rem, 3.2vw, 2.5rem);  /* h2  28 → 40 */
+  --t-year:    clamp(1.5rem, 2vw, 1.75rem);    /* the year, inside h3  24 → 28 */
+  --t-h3:      1.0625rem;                      /* the milestone name   17 */
+  --t-lead:    clamp(1rem, 1.4vw, 1.1875rem);  /* hero subhead         16 → 19 */
+  --t-body:    1rem;                           /* 16 */
+  --t-small:   0.875rem;                       /* 14 */
+  --t-eyebrow: 0.75rem;                        /* 12, tracked out */
+
   --radius: 14px;
   --shadow-rest:  0 1px 3px rgba(0, 40, 90, .10);
   --shadow-lift:  0 18px 40px rgba(0, 40, 90, .22);
@@ -41,17 +58,25 @@ body {
 
 /* ============================== HERO ============================== */
 
+/* LEFT-ALIGNED, not centred.
+
+   Centred hero, centred rule, centred subhead is the default shape of every
+   template, and it is what the sample looks like. Left alignment gives the page
+   a single vertical edge that the eyebrow, heading and cards all hang from --
+   which is how editorial layouts read as designed rather than as filled in.
+
+   The gradient runs to a DEEPER navy than the sample's mid-blue, and it is
+   angled so the light corner sits behind the logo. */
 .hero {
-  /* A gradient rather than a flat fill, so the blue has some depth behind
-     white type. Angled 135deg so it reads lighter at the top-left, which is
-     where the eye lands first. */
-  background: linear-gradient(135deg, var(--intel-blue) 0%, var(--intel-deep) 100%);
+  background:
+    radial-gradient(120% 140% at 8% 0%, rgba(0, 199, 253, .18) 0%, transparent 55%),
+    linear-gradient(160deg, var(--intel-blue) 0%, var(--intel-deep) 62%, #001A3A 100%);
   color: #FFFFFF;
-  padding: var(--space-16) var(--space-6);
-  text-align: center;
+  padding: clamp(var(--space-12), 9vw, 120px) var(--space-6);
+  text-align: left;
 }
 
-.hero__inner { max-width: 760px; margin: 0 auto; }
+.hero__inner { max-width: 1400px; margin: 0 auto; }
 
 .hero__logo {
   /* Sized by HEIGHT with width:auto, so the mark keeps its own proportions
@@ -62,45 +87,68 @@ body {
      duplication -- the attributes give the browser the aspect ratio before the
      file loads, so the hero does not jump when it arrives. */
   display: block;
-  height: clamp(38px, 5vw, 58px);
+  height: clamp(34px, 4vw, 46px);
   width: auto;
-  margin: 0 auto var(--space-6);
+  margin: 0 0 var(--space-12);   /* left-aligned, and given room to breathe */
 }
 
 .hero__title {
-  /* clamp() is the whole responsive type story in one line: never smaller
-     than 2rem, never larger than 4rem, and fluid between — so the headline
-     fits a phone without a media query. */
-  font-size: clamp(2rem, 6vw, 4rem);
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+  font-size: var(--t-display);
+  font-weight: 700;
+  /* Big type needs NEGATIVE tracking and a tighter leading. At 72px the
+     default letter-spacing reads loose and the default line-height leaves a
+     gap you could park in. */
+  line-height: 1.03;
+  letter-spacing: -0.035em;
   text-transform: uppercase;
   margin: 0 0 var(--space-6);
+  max-width: 16ch;      /* forces the two-line break rather than <br> doing it */
 }
 
 .hero__rule {
   display: block;
-  width: 110px; height: 3px;
-  margin: 0 auto var(--space-6);
+  width: 88px; height: 4px;
+  margin: 0 0 var(--space-6);   /* left, with everything else */
   background: var(--intel-light);
 }
 
 .hero__sub {
-  font-size: clamp(1rem, 2vw, 1.15rem);
-  margin: 0 auto;
-  max-width: 60ch;      /* a measure, not a pixel width — keeps lines readable */
-  color: rgba(255, 255, 255, .92);
+  font-size: var(--t-lead);
+  line-height: 1.6;
+  margin: 0;
+  max-width: 52ch;      /* a measure, not a pixel width — keeps lines readable */
+  color: rgba(255, 255, 255, .88);
 }
 
 /* ============================ TIMELINE ============================ */
 
 .timeline { padding: var(--space-16) var(--space-6) var(--space-12); }
 
+/* An eyebrow above the heading. Small, tracked out, in the accent — it states
+   the span of the timeline and gives the section a second line of hierarchy
+   without another heading level competing with the h2. */
+.timeline__eyebrow {
+  margin: 0 0 var(--space-3);
+  font-size: var(--t-eyebrow);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--intel-blue);
+}
+
+/* Eyebrow and heading share one 1400px container so they sit on the same left
+   edge as the cards. The heading's own measure is applied INSIDE it -- setting
+   max-width on the heading itself while it had `margin: 0 auto` would have
+   centred a 16ch block, which is the opposite of the alignment being built. */
+.timeline__intro { max-width: 1400px; margin: 0 auto var(--space-12); }
+
 .timeline__heading {
-  max-width: 1200px;
-  margin: 0 auto var(--space-8);
-  font-size: 1.5rem;
-  letter-spacing: -0.01em;
+  margin: 0;
+  max-width: 18ch;
+  font-size: var(--t-h2);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
   color: var(--intel-deep);
 }
 
@@ -177,6 +225,17 @@ body {
   border-radius: var(--radius);
   box-shadow: var(--shadow-rest);
 
+  /* A cyan rule along the top edge that grows in when the card is active.
+     Drawn as a background rather than a pseudo-element, because the card
+     already uses ::before for nothing and a gradient sized from 0 to 100%
+     animates on the compositor. */
+  background-image: linear-gradient(90deg, var(--intel-light), var(--intel-light));
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-size: 0% 4px;
+  transition: transform .28s ease, box-shadow .28s ease,
+              border-color .28s ease, background-size .34s ease;
+
   /* NOT overflow: hidden.
 
      It was there to keep the photo's corners inside the card radius, and it
@@ -187,9 +246,6 @@ body {
      thing that needed clipping is clipped and nothing else is. */
   overflow: visible;
 
-  /* LevelUp: transform + shadow on hover. Both are cheap for the browser to
-     animate; animating width or top is not. */
-  transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease;
 }
 
 .card__img {
@@ -202,19 +258,37 @@ body {
 
 .card__body { padding: var(--space-4) var(--space-4) var(--space-6); }
 
-.card__year {
-  margin: 0 0 var(--space-2);
-  font-size: 1.6rem;
-  font-weight: 700;
-  line-height: 1;
-  color: var(--intel-blue);
-  letter-spacing: -0.02em;
+/* ONE heading per card, holding both the year and the name.
+
+   The year used to be a <p> at 1.6rem sitting above an <h3> at 1.05rem -- a
+   paragraph rendering half again larger than the heading beneath it. The year
+   is the milestone's primary identifier, so the fix is not to shrink it; it is
+   to put it inside the heading where that size is honest. A screen reader now
+   announces "1968, Intel is founded" as one heading, which is what a timeline
+   entry actually is. */
+.card__title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  font-weight: 600;
 }
 
-.card__title {
-  margin: 0;
-  font-size: 1.05rem;
+.card__year {
+  font-size: var(--t-year);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--intel-blue);
+  /* Lining figures, so 1968 and 2050 have identical digit widths and the years
+     line up down the row instead of shuffling by a pixel or two. */
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.card__name {
+  font-size: var(--t-h3);
   font-weight: 600;
+  line-height: 1.35;
   color: var(--ink);
 }
 
@@ -241,7 +315,7 @@ body {
   transition: opacity .28s ease, transform .28s ease;
 }
 
-.card__reveal p { margin: 0; font-size: .95rem; }
+.card__reveal p { margin: 0; font-size: var(--t-body); line-height: 1.55; }
 
 /* ⚠️ :focus-within alone did NOT work here, and it is worth knowing why: it
    fires when a focusable DESCENDANT is focused, and these cards contain only
@@ -258,6 +332,7 @@ body {
   transform: translateY(-8px) scale(1.02);
   box-shadow: var(--shadow-lift);
   border-color: var(--intel-blue);
+  background-size: 100% 4px;     /* the accent rule draws itself in */
 }
 .card:hover .card__reveal,
 .card.is-active .card__reveal,
@@ -281,7 +356,7 @@ body {
   margin: var(--space-6) auto 0;
   text-align: center;
   color: var(--ink-soft);
-  font-size: .9rem;
+  font-size: var(--t-small);
 }
 .hint-mobile { display: none; }
 
@@ -291,7 +366,7 @@ body {
   padding: var(--space-8) var(--space-6) var(--space-12);
   text-align: center;
   color: var(--ink-soft);
-  font-size: .85rem;
+  font-size: var(--t-small);
 }
 .footer p { max-width: 70ch; margin: 0 auto; }
 
@@ -343,6 +418,12 @@ body {
 
   .timeline { padding: var(--space-12) var(--space-4); }
   .hero     { padding: var(--space-12) var(--space-4); }
+
+  /* The measures that force a two-line headline on a wide screen would strangle
+     it on a narrow one — 16ch at 40px is four words a line. Released, and the
+     viewport does the wrapping. */
+  .hero__title, .timeline__heading { max-width: none; }
+  .timeline__intro { margin-bottom: var(--space-8); }
 }
 
 /* ========================= REDUCED MOTION ========================== */
