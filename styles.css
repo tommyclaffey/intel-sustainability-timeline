@@ -727,8 +727,19 @@ body {
 }
 
 /* The rail is dragged, so it says so — grab, then grabbing while held. */
-.progress { cursor: grab; }
+.progress { cursor: grab; user-select: none; -webkit-user-select: none; }
 .progress.is-dragging { cursor: grabbing; }
+
+/* Snap off while dragging. `proximity` pulls every programmatic scroll toward
+   the nearest card, so a drag could only ever land on a snap point -- it read
+   as the bar refusing to move. Restored the moment the pointer is released, so
+   the tidy resting behaviour survives. */
+.track.is-dragging { scroll-snap-type: none; }
+
+/* Dragging must not select the page. A drag that starts a text selection ends
+   as soon as the browser decides it was a selection all along. */
+.track.is-dragging,
+.track.is-dragging * { user-select: none; -webkit-user-select: none; }
 
 /* ⚠️ touch-action: none is what makes a touch drag possible at all.
 

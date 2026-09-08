@@ -223,6 +223,11 @@
     if (track.scrollWidth - track.clientWidth <= 1) return;
     dragging = true;
     rail.classList.add('is-dragging');
+    /* ⚠️ Snap is suspended for the duration. scroll-snap-type: x proximity
+       pulls every programmatic scroll toward the nearest card, so each
+       scrollTo issued mid-drag was being yanked back to a snap point and the
+       bar could not be steered anywhere between them. */
+    track.classList.add('is-dragging');
 
     /* Capture routes every later move and the release to the rail even when
        the pointer leaves it -- which it will, because dragging along a 6px bar
@@ -230,8 +235,21 @@
        the moment the cursor strays. */
     rail.setPointerCapture(event.pointerId);
 
-    // A press without movement is a click, and gets the smooth jump it used to.
-    scrollToPointer(event.clientX, 'smooth');
+    /* ⚠️ 'auto', NOT 'smooth'.
+
+       A smooth scroll is an animation that runs to its own target. Starting one
+       here and then issuing 'auto' scrolls on every pointermove meant the two
+       fought: the animation kept pulling toward wherever the pointer first
+       landed while the drag tried to steer somewhere else. The bar barely
+       moved, which is exactly what "you can't drag it" looks like. */
+    scrollToPointer(event.clientX, 'auto');
+
+    /* Focus the rail on press, so arrow keys work straight after a drag without
+       a separate tab to get here. Not preventDefault() -- that would stop the
+       browser focusing it, and the whole point of role="slider" plus tabindex
+       is that this thing is keyboard operable. `user-select: none` handles the
+       text-selection side instead. */
+    rail.focus();
     render();
   });
 
@@ -246,6 +264,7 @@
     if (!dragging) return;
     dragging = false;
     rail.classList.remove('is-dragging');
+    track.classList.remove('is-dragging');
     if (rail.hasPointerCapture(event.pointerId)) rail.releasePointerCapture(event.pointerId);
     render();
   }
