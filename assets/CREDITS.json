@@ -71,11 +71,10 @@
     "note": "intel-logo-white.svg is the 2023 file with the wordmark recoloured to #FFFFFF \u2014 Intel's own on-dark treatment. Used nominatively: this page is about Intel."
   },
   {
-    "slug": "hero-wafer",
-    "title": "12-inch silicon wafer",
-    "creator": "Peellden",
-    "license": "CC BY-SA 3.0",
-    "source": "https://commons.wikimedia.org/wiki/File:12-inch_silicon_wafer.jpg",
-    "note": "\u26a0\ufe0f The ONLY asset here that is not CC0 \u2014 it requires attribution, so it is credited in the page footer as well as in this file."
+    "slug": "hero-wind",
+    "title": "Aerial wind farm through cloud",
+    "creator": "Thomas Richter",
+    "license": "Unsplash License (free for commercial use, attribution not required)",
+    "source": "https://unsplash.com/photos/B09tL5bSQJk"
   }
 ]

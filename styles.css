@@ -89,26 +89,31 @@ body {
   align-items: center;
 }
 
-/* The wafer, masked to a circle.
+/* The hero photograph — an aerial wind farm seen through cloud.
 
-   The source photograph is a circular wafer on a cream studio background, and
-   that cream would fight a navy hero. Masking to a circle and scaling the image
-   slightly past the frame pushes the background outside the mask, so what is
-   left is the wafer itself floating on the gradient.
+   ⚠️ THE SAME RADIUS AS THE CARDS, from the same token. Not a similar-looking
+   number typed twice: if --radius changes, the hero and the eight cards move
+   together. A hero at 16px beside cards at 14px is the kind of two-pixel
+   disagreement nobody can name and everybody can feel.
 
-   The rings are drawn with box-shadow rather than borders -- a spread-only
-   shadow can be layered, so two rings cost one property and add no layout. */
+   Enough to read as deliberate, not enough to become the point.
+
+   3:2, close to the photograph's own shape, so the aerial sweep survives
+   rather than being cropped to a square. It also happens to land at roughly
+   the height of the copy beside it, which is what makes the two columns feel
+   set rather than stacked.
+
+   The hairline and glow are box-shadow, not borders -- a spread-only shadow
+   layers, so both cost one property and neither affects layout. */
 .hero__art {
   position: relative;
-  aspect-ratio: 1;
-  border-radius: 50%;
+  aspect-ratio: 3 / 2;
+  border-radius: var(--radius);
   overflow: hidden;
   box-shadow:
-    0 0 0 1px rgba(0, 199, 253, .45),
-    0 0 0 14px rgba(0, 199, 253, .06),
-    0 30px 80px rgba(0, 20, 50, .45);
-  justify-self: center;
-  width: min(100%, 460px);
+    0 0 0 1px rgba(0, 199, 253, .35),
+    0 30px 70px rgba(0, 16, 40, .45);
+  width: 100%;
 }
 
 .hero__art img {
@@ -116,20 +121,18 @@ body {
   height: 100%;
   object-fit: cover;
   display: block;
-  transform: scale(1.08);       /* crops the cream ring out of the mask */
 }
 
-/* A soft blue wash so the photo sits in the palette instead of on top of it.
-   `mix-blend-mode: soft-light` tints without flattening — the iridescence,
-   which is the whole reason to use this photograph, survives. */
+/* A dark vignette along the left edge only, where the photograph meets the
+   copy. It keeps the two columns from butting into each other without tinting
+   the image -- the greens and the cloud are why this photograph was chosen, and
+   a blue wash over the whole thing would flatten both. */
 .hero__art::after {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 25%, rgba(0, 199, 253, .35), transparent 60%),
-              linear-gradient(200deg, rgba(0, 40, 90, .35), rgba(0, 104, 181, .15));
-  mix-blend-mode: soft-light;
+  border-radius: inherit;      /* inherit, so it cannot drift from the frame */
+  background: linear-gradient(90deg, rgba(0, 26, 58, .40), transparent 32%);
   pointer-events: none;
 }
 
@@ -482,7 +485,7 @@ body {
   /* One column, and the wafer moves BELOW the copy — the headline is what the
      page is for, and on a phone whichever comes first owns the screen. */
   .hero__inner { grid-template-columns: 1fr; gap: var(--space-8); }
-  .hero__art { width: min(100%, 320px); justify-self: start; }
+  .hero__art { width: 100%; }
   .timeline__intro { margin-bottom: var(--space-8); }
 }
 
