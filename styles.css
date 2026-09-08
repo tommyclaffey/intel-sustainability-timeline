@@ -716,8 +716,38 @@ body {
               transform .18s ease, background .18s ease;
 }
 
-/* Clicking the rail jumps the timeline, so it must look pressable. */
-.progress { cursor: pointer; }
+/* The rail is dragged, so it says so — grab, then grabbing while held. */
+.progress { cursor: grab; }
+.progress.is-dragging { cursor: grabbing; }
+
+/* ⚠️ touch-action: none is what makes a touch drag possible at all.
+
+   Without it the browser claims the gesture for page scrolling before a single
+   pointermove reaches the handler, so the rail works with a mouse and does
+   nothing under a finger -- and that is the harder failure to notice, because
+   it only appears on the device nobody tests on first.
+
+   A bigger hit area comes with it: 6px is the visible bar, and a 6px drag
+   target is one most people miss.
+
+   ⚠️ NOT padding. box-sizing: border-box is global in this file, so height 6px
+   with padding-block 10px would have collapsed the content box to zero and the
+   bar would have vanished -- while `inset: 0` on the fill resolves against the
+   PADDING box, so the fill would have grown to 26px tall at the same moment.
+   A pseudo-element extends the catchable area without entering the box model. */
+.progress { touch-action: none; }
+
+.progress::before {
+  content: "";
+  position: absolute;
+  inset: -10px 0;        /* 10px of reach above and below, invisible */
+}
+
+/* During a drag the dot must sit exactly under the finger. The 0.18s ease that
+   makes a click glide would make a drag lag behind by a fifth of a second,
+   which reads as the bar being broken rather than as easing. */
+.progress.is-dragging .progress__fill,
+.progress.is-dragging .progress__dot { transition: none; }
 .progress:focus-visible {
   outline: 3px solid var(--intel-light);
   outline-offset: 4px;

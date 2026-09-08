@@ -34,6 +34,7 @@
      and none of them can disagree. */
   let pointerX = null;      // last known pointer position, viewport coords
   let focusedCard = null;   // keyboard overrides the pointer
+  let dragging = false;     // the rail is being dragged
 
   /**
    * How far along the timeline we are, 0 to 1, or null if nothing can scroll.
@@ -81,6 +82,11 @@
    * a flicker on the way between every pair of cards.
    */
   function activeCard() {
+    /* Nothing points at a card mid-drag. The pointer is on the RAIL, but
+       pointerX still holds wherever it last was over the track -- so without
+       this the dot would jump to a stale card instead of following the finger
+       that is dragging it. */
+    if (dragging) return null;
     if (focusedCard) return focusedCard;
     if (pointerX === null || cards.length === 0) return null;
 
@@ -196,13 +202,55 @@
 
   /* ---- The rail as a control --------------------------------------------- */
 
-  // Click anywhere on it to jump there.
-  rail.addEventListener('click', function (event) {
+  /* ⚠️ DRAG, which the page has been promising and did not do.
+
+     The hint under the timeline reads "scroll or drag the bar", and the rail
+     listened for `click` and `keydown` only. A control that states an ability
+     it does not have is the same defect as a button with no handler -- worse
+     here, because the label is the only reason anyone would try.
+
+     Pointer Events rather than mouse events, so one implementation covers
+     mouse, touch and pen instead of three. */
+  function scrollToPointer(clientX, behavior) {
     const box = rail.getBoundingClientRect();
-    const ratio = (event.clientX - box.left) / box.width;
+    if (box.width === 0) return;
+    const ratio = Math.max(0, Math.min(1, (clientX - box.left) / box.width));
     const scrollable = track.scrollWidth - track.clientWidth;
-    track.scrollTo({ left: ratio * scrollable, behavior: 'smooth' });
+    track.scrollTo({ left: ratio * scrollable, behavior: behavior });
+  }
+
+  rail.addEventListener('pointerdown', function (event) {
+    if (track.scrollWidth - track.clientWidth <= 1) return;
+    dragging = true;
+    rail.classList.add('is-dragging');
+
+    /* Capture routes every later move and the release to the rail even when
+       the pointer leaves it -- which it will, because dragging along a 6px bar
+       means going above and below it constantly. Without capture the drag ends
+       the moment the cursor strays. */
+    rail.setPointerCapture(event.pointerId);
+
+    // A press without movement is a click, and gets the smooth jump it used to.
+    scrollToPointer(event.clientX, 'smooth');
+    render();
   });
+
+  rail.addEventListener('pointermove', function (event) {
+    if (!dragging) return;
+    // 'auto', not 'smooth': a drag must track the finger 1:1. Smooth queues an
+    // animation per move event and the bar swims behind the pointer.
+    scrollToPointer(event.clientX, 'auto');
+  });
+
+  function endDrag(event) {
+    if (!dragging) return;
+    dragging = false;
+    rail.classList.remove('is-dragging');
+    if (rail.hasPointerCapture(event.pointerId)) rail.releasePointerCapture(event.pointerId);
+    render();
+  }
+  rail.addEventListener('pointerup', endDrag);
+  rail.addEventListener('pointercancel', endDrag);
 
   /* Arrow keys, because the markup says role="slider" and tabindex="0".
 
