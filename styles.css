@@ -109,7 +109,18 @@ body {
 .track {
   list-style: none;
   margin: 0 auto;
-  padding: 0 0 var(--space-6);
+  /* ⚠️ Vertical padding is what stops the hover state being CLIPPED.
+
+     This is a scroll container, and CSS does not allow one axis to scroll while
+     the other stays visible -- `overflow-y: visible` silently computes to auto.
+     So the box clips vertically no matter what, and the hovered card, which
+     lifts 8px and scales to 1.02, was being cut off at the top along with its
+     drop shadow.
+
+     The room has to come from INSIDE the clipping box. 20px above covers the
+     lift plus half the scale; 48px below covers the other half plus the
+     shadow's 18px offset and 40px blur. */
+  padding: 20px 0 48px;
   max-width: 1400px;
 
   /* Flexbox does the layout. `nowrap` is what makes it a horizontal timeline
@@ -345,9 +356,10 @@ body {
 .progress {
   position: relative;
   max-width: 1400px;
-  /* Tight to the track: it is the scrollbar's replacement, so it belongs where
-     the scrollbar was rather than floating as a separate element. */
-  margin: var(--space-4) auto 0;
+  /* No top margin: the track's own bottom padding, which exists to keep the
+     hover state from being clipped, already provides the gap. Adding one here
+     would double it. */
+  margin: 0 auto;
   height: 6px;
   border-radius: 99px;
   background: var(--border);
@@ -389,7 +401,10 @@ body {
    ordinary scrolling still tracks the finger 1:1 -- the transition is short
    enough to be invisible during a drag. */
 .progress__fill,
-.progress__dot { transition: width .12s linear, left .12s linear; }
+.progress__dot {
+  transition: width .12s linear, left .18s ease,
+              transform .18s ease, background .18s ease, opacity .18s ease;
+}
 
 /* Clicking the rail jumps the timeline, so it must look pressable. */
 .progress { cursor: pointer; }
@@ -408,3 +423,16 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .progress__fill, .progress__dot { transition: none; }
 }
+
+/* Pointing at a hovered card rather than reporting scroll position. Lit in the
+   accent so it reads as "this one" rather than as the ordinary position dot.
+   The dot already transitions left, so moving it to the card glides. */
+.progress__dot.is-pointing {
+  background: var(--intel-light);
+  border-color: var(--surface);
+  transform: scale(1.25);
+  box-shadow: 0 0 0 4px rgba(0, 199, 253, .28), 0 2px 8px rgba(0, 40, 90, .28);
+}
+/* The fill dims rather than following, so the two stop reading as one object --
+   the dot has left its post to point at something. */
+.progress__fill.is-pointing { opacity: .5; }

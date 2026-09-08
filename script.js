@@ -78,6 +78,56 @@
      stops scrolling sideways entirely and the rail must hide itself. */
   window.addEventListener('resize', onScroll);
 
+  /* ---- Pointing at a hovered card ----------------------------------------
+
+     Hovering a card sends the dot to sit under that card's centre and lights
+     it up, so the rail answers "which one am I looking at" as well as "how far
+     along am I".
+
+     Measured in VIEWPORT coordinates, not scroll coordinates. The dot's job is
+     to point at where the card is on screen right now, and getBoundingClientRect
+     already accounts for the scroll -- converting through scrollLeft would be
+     doing the same arithmetic twice, in the wrong direction. */
+  function pointAt(card) {
+    const cardBox = card.getBoundingClientRect();
+    const railBox = rail.getBoundingClientRect();
+    if (railBox.width === 0) return;
+
+    const centre = cardBox.left + cardBox.width / 2;
+    let ratio = (centre - railBox.left) / railBox.width;
+
+    // A card can be half off-screen at the ends of the scroll. Clamped, so the
+    // dot stops at the rail rather than sliding off it.
+    ratio = Math.max(0, Math.min(1, ratio));
+
+    dot.style.left = (ratio * 100).toFixed(2) + '%';
+    dot.classList.add('is-pointing');
+    fill.classList.add('is-pointing');
+  }
+
+  function stopPointing() {
+    dot.classList.remove('is-pointing');
+    fill.classList.remove('is-pointing');
+    render();                    // back to reporting scroll position
+  }
+
+  document.querySelectorAll('.card').forEach(function (card) {
+    card.addEventListener('mouseenter', function () { pointAt(card); });
+    card.addEventListener('mouseleave', stopPointing);
+    // The cards are focusable, so the same feedback has to reach the keyboard.
+    // Without these, tabbing through the timeline moves the reveal but leaves
+    // the dot behind, pointing at nothing.
+    card.addEventListener('focus', function () { pointAt(card); });
+    card.addEventListener('blur', stopPointing);
+  });
+
+  /* Scrolling while pointing would leave the dot stale -- it was placed against
+     a card position that has since moved. Pointing is dropped, and the normal
+     scroll readout takes over. */
+  track.addEventListener('scroll', function () {
+    if (dot.classList.contains('is-pointing')) stopPointing();
+  }, { passive: true });
+
   /* Click the rail to jump there. The rail already shows where you are; making
      it show where you COULD be costs four lines and turns a readout into a
      control. */
