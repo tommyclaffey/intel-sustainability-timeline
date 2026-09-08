@@ -164,8 +164,19 @@ body {
   left: 0;
   width: calc(100% + var(--space-6));   /* card + the gap to the next one */
   height: 3px;
-  background: linear-gradient(90deg, var(--intel-light), var(--intel-blue));
-  opacity: .35;
+
+  /* ⚠️ A SOLID colour, not a gradient.
+
+     Each card draws its own segment, so a gradient restarts on every one --
+     light, dark, light, dark -- and the joins show as a seam at every card
+     boundary. It read as a broken line, because visually it was one.
+
+     A gradient across the whole track would need one element spanning the
+     scrollable width, and an abspos box in a scroller cannot be that (see
+     below). Solid is seamless by construction. The gradient moved to the
+     progress rail, where it belongs to a single element and can run properly. */
+  background: var(--intel-blue);
+  opacity: .28;
   z-index: 0;
 }
 .card:last-child::before { width: 100%; }
@@ -372,4 +383,86 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .card, .card__reveal { transition: none; }
   .card:hover, .card:focus-within { transform: none; }
+}
+
+/* ===================== SCROLL PROGRESS (pure CSS) =====================
+
+   A dot that travels the line as the timeline is scrolled, and a fill that
+   grows behind it.
+
+   No JavaScript. This uses a scroll-driven animation: `.track` publishes its
+   own inline (horizontal) scroll position as a named timeline, and these two
+   elements animate against it. The keyframes describe the START and END
+   states; the scroll position decides where between them you are.
+
+   ⚠️ `timeline-scope` on the section is what makes it work at all. A named
+   scroll timeline is normally only visible to DESCENDANTS of the element that
+   defines it, and the progress bar is a SIBLING of the track, not a child.
+   `timeline-scope` raises the name to a shared ancestor so the sibling can
+   see it. Without it the rule parses, applies, and does nothing -- silent,
+   which is the worst kind of not-working. */
+
+.timeline { timeline-scope: --track-scroll; }
+.track    { scroll-timeline: --track-scroll inline; }
+
+.progress {
+  position: relative;
+  max-width: 1400px;
+  margin: var(--space-8) auto 0;
+  height: 4px;
+  border-radius: 99px;
+  background: var(--border);
+
+  /* Hidden by default and shown only where the feature exists. A rail whose
+     dot cannot move is worse than no rail -- it looks like a broken control
+     rather than an absent one. */
+  display: none;
+}
+
+.progress__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--intel-light), var(--intel-blue));
+}
+
+.progress__dot {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  width: 16px; height: 16px;
+  margin: -8px 0 0 -8px;        /* centres the dot on its own position */
+  border-radius: 50%;
+  background: var(--surface);
+  border: 3px solid var(--intel-blue);
+  box-shadow: 0 2px 8px rgba(0, 40, 90, .28);
+}
+
+@keyframes track-fill { from { width: 0%;  } to { width: 100%; } }
+@keyframes track-dot  { from { left: 0%;   } to { left: 100%;  } }
+
+/* Only in browsers that can actually drive an animation from scroll. */
+@supports (animation-timeline: scroll()) {
+  .progress { display: block; }
+
+  .progress__fill {
+    animation: track-fill linear both;
+    animation-timeline: --track-scroll;
+  }
+  .progress__dot {
+    animation: track-dot linear both;
+    animation-timeline: --track-scroll;
+  }
+}
+
+/* Stacked vertically there is no horizontal scroll to report. */
+@media (max-width: 768px) {
+  .progress { display: none; }
+}
+
+/* The dot is motion tied to scrolling, which is exactly the pairing that
+   causes trouble for people sensitive to it. */
+@media (prefers-reduced-motion: reduce) {
+  .progress__fill, .progress__dot { animation: none; }
 }

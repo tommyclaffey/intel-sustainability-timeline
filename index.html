@@ -160,6 +160,14 @@
 
       </ol>
 
+      <!-- Scroll progress. aria-hidden because it duplicates information the
+           scrollbar and the cards already carry -- it is a visual aid, not a
+           second source of truth for a screen reader to read out. -->
+      <div class="progress" aria-hidden="true">
+        <span class="progress__fill"></span>
+        <span class="progress__dot"></span>
+      </div>
+
       <p class="timeline__hint">
         <span class="hint-desktop">Scroll sideways to move through time &middot; hover a card for the detail</span>
         <span class="hint-mobile">Scroll to move through time &middot; tap a card for the detail</span>
