@@ -765,7 +765,18 @@ body {
 
 /* Stacked vertically there is no horizontal scroll to report. */
 @media (max-width: 768px) {
-  .progress { display: none; }
+  /* ⚠️ BOTH selectors, and the second is the one that matters.
+
+     `.progress.is-active { display: block }` is two classes; `.progress` is
+     one, and a media query adds no specificity of its own. So this rule LOST
+     to it, and the rail stayed visible on mobile whenever the class happened
+     to be on the element.
+
+     It looked fine only because the script removes `is-active` when nothing can
+     scroll -- so a stylesheet rule that does not work was masked by JavaScript
+     that does. Matching the specificity makes the CSS true on its own. */
+  .progress,
+  .progress.is-active { display: none; }
 }
 
 /* The dot is motion tied to scrolling, which is exactly the pairing that
