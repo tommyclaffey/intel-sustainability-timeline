@@ -28,6 +28,24 @@ would hide that content permanently rather than making it interactive.
 `clamp(2rem, 6vw, 4rem)`: never smaller than 2rem, never larger than 4rem, fluid
 between. One line replaces three breakpoints.
 
+## Milestone sourcing
+
+Every date is checked against Intel's own material, not written from memory:
+
+| Milestone | Source |
+|---|---|
+| 2007 lead-free 45nm | Intel press release, 22 May 2007 |
+| 2008 largest US green power purchaser | Intel press release, 28 Jan 2008 |
+| 2020 RISE, 2030 goals | Intel 2030 goals announcement |
+| 2040 net-zero Scope 1 & 2 | Intel press release, 2022 |
+| 2050 net-zero upstream Scope 3 | Intel Climate Transition Action Plan |
+
+⚠️ Two dates were wrong in the first version and both were found by checking
+rather than by reading it back. Lead-free was dated 2008 (it was announced in
+2007), and the green power milestone was dated 2012 (Intel took the top spot in
+2008). The second error also put two milestones in the same year, which the
+timeline had no way to show.
+
 ## Images
 
 All photography is **CC0** (public domain, commercial use, no attribution
