@@ -1,19 +1,5 @@
 [
   {
-    "slug": "1971-microprocessor",
-    "title": "Technology Motherboard",
-    "creator": "Lenharth Systems",
-    "license": "cc0",
-    "source": "https://stocksnap.io/photo/technology-motherboard-PUWNNLCU1C"
-  },
-  {
-    "slug": "2007-leadfree",
-    "title": "Sempron 64 2600+",
-    "creator": "Henrique Vicente",
-    "license": "cc0",
-    "source": "https://www.flickr.com/photos/51314820@N00/132223879"
-  },
-  {
     "slug": "2008-green-power",
     "title": "Granja solar",
     "creator": "Daquella manera",
@@ -33,13 +19,6 @@
     "creator": "Soumava2002",
     "license": "cc0",
     "source": "https://commons.wikimedia.org/w/index.php?curid=157515065"
-  },
-  {
-    "slug": "1968-founded",
-    "title": "technology_Vakutronik_GM_tubes_005",
-    "creator": "Juhele_CZ",
-    "license": "cc0",
-    "source": "https://www.flickr.com/photos/96541566@N06/52696320628"
   },
   {
     "slug": "2040-netzero",
@@ -69,5 +48,26 @@
     "creator": "Thomas Richter",
     "license": "Unsplash License (free for commercial use, attribution not required)",
     "source": "https://unsplash.com/photos/B09tL5bSQJk"
+  },
+  {
+    "slug": "1968-founded",
+    "title": "Intel computer processor in selective color",
+    "creator": "Slejven Djurakovic",
+    "license": "Unsplash License",
+    "source": "https://unsplash.com/photos/0uXzoEzYZ4I"
+  },
+  {
+    "slug": "1971-microprocessor",
+    "title": "Macro shot of an Intel Core i5 processor",
+    "creator": "Alexandru-Bogdan Ghita",
+    "license": "Unsplash License",
+    "source": "https://unsplash.com/photos/eM6WUs4nKMY"
+  },
+  {
+    "slug": "2007-leadfree",
+    "title": "Intel Core logo on a computer motherboard",
+    "creator": "BoliviaInteligente",
+    "license": "Unsplash License",
+    "source": "https://unsplash.com/photos/glyUZghL5-M"
   }
 ]
