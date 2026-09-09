@@ -48,8 +48,20 @@ timeline had no way to show.
 
 ## Images
 
-All photography is **CC0** (public domain, commercial use, no attribution
-required). Sources are recorded in `assets/CREDITS.json`.
+Three licences, and the footer names all three:
+
+| Count | Licence | What |
+|---|---|---|
+| 5 | **CC0** | the sustainability photographs |
+| 4 | **Unsplash License** | the hero, and the three Intel hardware shots |
+| 1 | **Public domain** | the Intel wordmark, via Wikimedia Commons |
+
+⚠️ The Intel wordmark is public domain because it sits below the threshold of
+originality for copyright. **The trademark is still Intel's** — it is used here
+nominatively, to refer to the company the page is about, which is why the footer
+says so explicitly.
+
+Per-image credits with photographer and source URL are in `assets/CREDITS.json`.
 
 ## The one piece of JavaScript
 
